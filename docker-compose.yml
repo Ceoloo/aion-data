@@ -1,0 +1,24 @@
+# Local development / test PostgreSQL only.
+#
+# This is DEVELOPER convenience infrastructure, not production infrastructure —
+# production environments and provisioning are owned by aion-infra
+# (aion-docs/repositories/dependency-rules.md, architecture/environments.md).
+# It brings up a disposable Postgres so `npm run migrate` and `npm test` work
+# without a hand-prepared database.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aion-data-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: aion_data
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 3s
+      timeout: 5s
+      retries: 10

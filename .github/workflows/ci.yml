@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Phase 2 is the durable data foundation: install → lint → typecheck →
+# migrate → integration tests (against a real Postgres) → build. There is no
+# deployment stage — provisioning is owned by aion-infra (Phase 3).
+jobs:
+  build:
+    name: lint · typecheck · migrate · test · build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: aion_data_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Isolated, ephemeral CI database — never real data.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/aion_data_test
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/aion_data_test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # AION Data builds against the REAL AION Core contracts. Core is vendored
+      # and built here (see scripts/setup-core.mjs); npm ci then links it via the
+      # file: dependency. Skipping the preinstall hook keeps this a single build.
+      - name: Bootstrap AION Core
+        run: npm run setup:core
+
+      - name: Install dependencies
+        run: npm ci
+        env:
+          AION_SKIP_CORE_SETUP: '1'
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Apply migrations
+        run: npm run migrate
+
+      - name: Test (integration against Postgres)
+        run: npm test
+
+      - name: Build
+        run: npm run build

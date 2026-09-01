@@ -1,0 +1,86 @@
+import type pg from 'pg';
+import type { MigrationResult } from './migrations/runner.js';
+import { runMigrations } from './migrations/runner.js';
+import type { DataLayerConfig } from './db/config.js';
+import type { Queryable } from './db/client.js';
+import { createPool } from './db/client.js';
+import { withTransaction } from './db/transaction.js';
+import { PostgresMissionRepository } from './repositories/postgres-mission-repository.js';
+import { PostgresRunRepository } from './repositories/postgres-run-repository.js';
+import { PostgresApprovalStore } from './repositories/postgres-approval-store.js';
+import { PostgresEventSink } from './repositories/postgres-event-sink.js';
+import { PostgresTelemetrySink } from './repositories/postgres-telemetry-sink.js';
+import { PostgresActorRepository } from './repositories/postgres-actor-repository.js';
+import { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
+
+/**
+ * The set of durable repositories/adapters, bound to a single {@link Queryable}
+ * (the pool, or one transaction client). The first five satisfy AION Core's
+ * persistence ports exactly; `actors` and `outcomes` are aion-data-local
+ * repositories (Core defines no port for them).
+ */
+export interface DataRepositories {
+  missions: PostgresMissionRepository;
+  runs: PostgresRunRepository;
+  approvals: PostgresApprovalStore;
+  events: PostgresEventSink;
+  telemetry: PostgresTelemetrySink;
+  actors: PostgresActorRepository;
+  outcomes: PostgresOutcomeRepository;
+}
+
+/** Builds the repository set over any query surface (pool or tx client). */
+export function buildRepositories(db: Queryable): DataRepositories {
+  return {
+    missions: new PostgresMissionRepository(db),
+    runs: new PostgresRunRepository(db),
+    approvals: new PostgresApprovalStore(db),
+    events: new PostgresEventSink(db),
+    telemetry: new PostgresTelemetrySink(db),
+    actors: new PostgresActorRepository(db),
+    outcomes: new PostgresOutcomeRepository(db),
+  };
+}
+
+/**
+ * The AION Data layer: the durable repository set plus lifecycle operations.
+ *
+ * Everything the control plane persists reaches Postgres through these
+ * repositories, which implement Core's ports — so Core stays database-agnostic
+ * and this object is what a Core Orchestrator is wired to.
+ */
+export interface DataLayer extends DataRepositories {
+  /** The underlying pool, for advanced/inspection use. */
+  readonly pool: pg.Pool;
+  /** Applies all pending migrations (idempotent). */
+  migrate(): Promise<MigrationResult[]>;
+  /**
+   * Runs `fn` with a repository set bound to a single transaction — the atomic
+   * multi-write boundary (docs/phase-2.md §Transactions). All writes commit
+   * together or roll back together.
+   */
+  transaction<T>(fn: (repos: DataRepositories) => Promise<T>): Promise<T>;
+  /** Closes the pool. Idempotent-safe to call once at shutdown. */
+  close(): Promise<void>;
+}
+
+/**
+ * Creates the AION Data layer from injectable configuration.
+ *
+ * No hidden global connection and no import-time environment coupling
+ * (aion-docs/architecture/environments.md): the caller owns the connection
+ * string, so tests point at an isolated database and each environment supplies
+ * its own least-privileged credentials.
+ */
+export function createDataLayer(config: DataLayerConfig): DataLayer {
+  const pool = createPool(config);
+  const repos = buildRepositories(pool);
+
+  return {
+    ...repos,
+    pool,
+    migrate: () => runMigrations(pool),
+    transaction: (fn) => withTransaction(pool, (tx) => fn(buildRepositories(tx))),
+    close: () => pool.end(),
+  };
+}
