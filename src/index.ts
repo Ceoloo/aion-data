@@ -36,6 +36,7 @@ export { PostgresTelemetrySink } from './repositories/postgres-telemetry-sink.js
 
 // ── aion-data-local repositories (no Core port) ─────────────────────────────
 export { PostgresActorRepository } from './repositories/postgres-actor-repository.js';
+export { PostgresRevenueSessionRepository, type RevenueSessionRow } from './repositories/postgres-revenue-session-repository.js';
 export { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
 export {
   type OutcomeRecord,
