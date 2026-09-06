@@ -55,6 +55,29 @@ export class PostgresMissionRepository implements MissionRepository {
       throw wrap('save mission', err, { missionId: mission.missionId });
     }
   }
+
+  /**
+   * Mission 006 — DISTINCT missions referenced by executions for a tenant.
+   * Missions have no tenant_id; tenancy is derived from `executions.tenant_id`.
+   */
+  async listForTenant(tenantId: string): Promise<Mission[]> {
+    try {
+      const { rows } = await this.db.query<MissionRow>(
+        `SELECT DISTINCT ON (m.mission_id) m.*
+         FROM missions m
+         INNER JOIN executions e ON e.mission_id = m.mission_id
+         WHERE e.tenant_id = $1
+         ORDER BY m.mission_id, m.created_at DESC`,
+        [tenantId],
+      );
+      // Re-sort by created_at after DISTINCT ON (which requires mission_id first).
+      const missions = rows.map(rowToMission);
+      missions.sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0));
+      return missions;
+    } catch (err) {
+      throw wrap('list missions for tenant', err, { tenantId });
+    }
+  }
 }
 
 function wrap(op: string, err: unknown, details: Record<string, unknown>): DataError {

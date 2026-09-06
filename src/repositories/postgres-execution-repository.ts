@@ -77,6 +77,29 @@ export class PostgresExecutionRepository {
     }
   }
 
+  /**
+   * Mission 006 — recent executions for a tenant (Control Center feed).
+   * Ordered by started_at/created_at descending.
+   */
+  async listRecentForTenant(
+    tenantId: string,
+    limit = 50,
+  ): Promise<ExecutionObject[]> {
+    const capped = Math.max(1, Math.min(Math.trunc(limit), 500));
+    try {
+      const { rows } = await this.db.query<ExecutionRow>(
+        `SELECT * FROM executions
+         WHERE tenant_id = $1
+         ORDER BY COALESCE(started_at, created_at) DESC, created_at DESC
+         LIMIT $2`,
+        [tenantId, capped],
+      );
+      return rows.map(rowToExecution);
+    } catch (err) {
+      throw wrap('list recent executions for tenant', err, { tenantId, limit: capped });
+    }
+  }
+
   async save(exe: ExecutionObject): Promise<void> {
     const c = executionToColumns(exe);
     try {

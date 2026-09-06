@@ -24,7 +24,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-core';
-// Mission 005 aion-core tip after PR #9 land (MissionEconomicsRollup).
+// Integration tip: cursor/execution-object-agent-identity-6743 (Mission 005 landed).
 const CORE_REF = process.env.AION_CORE_REF ?? '4137d3350b138b0d03c0cf13a4c57f0fcf855dec';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
