@@ -115,6 +115,17 @@ export interface MissionRow {
   updated_at: Date;
 }
 
+export interface WorkflowRow {
+  workflow_id: string;
+  name: string;
+  description: string;
+  version: string;
+  steps: unknown;
+  metadata: Record<string, unknown>;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface RunRow {
   run_id: string;
   request_id: string;

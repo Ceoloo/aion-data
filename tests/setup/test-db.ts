@@ -32,6 +32,7 @@ export const ALL_TABLES = [
   'telemetry_records',
   'events',
   'runs',
+  'workflows',
   'missions',
   'actors',
 ] as const;
