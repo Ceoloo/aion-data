@@ -44,6 +44,39 @@ export class PostgresExecutionRepository {
     }
   }
 
+  /**
+   * Mission 004 — list child executions under a root (lineage tree query).
+   * Ordered by created_at so orchestrated step order is reconstructible.
+   */
+  async listByRoot(rootExecutionId: ExecutionId): Promise<ExecutionObject[]> {
+    try {
+      const { rows } = await this.db.query<ExecutionRow>(
+        `SELECT * FROM executions
+         WHERE root_execution_id = $1 OR execution_id = $1
+         ORDER BY created_at ASC`,
+        [rootExecutionId],
+      );
+      return rows.map(rowToExecution);
+    } catch (err) {
+      throw wrap('list executions by root', err, { rootExecutionId });
+    }
+  }
+
+  /** Mission 004 — list direct children of a parent execution. */
+  async listByParent(parentExecutionId: ExecutionId): Promise<ExecutionObject[]> {
+    try {
+      const { rows } = await this.db.query<ExecutionRow>(
+        `SELECT * FROM executions
+         WHERE parent_execution_id = $1
+         ORDER BY created_at ASC`,
+        [parentExecutionId],
+      );
+      return rows.map(rowToExecution);
+    } catch (err) {
+      throw wrap('list executions by parent', err, { parentExecutionId });
+    }
+  }
+
   async save(exe: ExecutionObject): Promise<void> {
     const c = executionToColumns(exe);
     try {

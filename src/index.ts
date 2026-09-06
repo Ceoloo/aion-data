@@ -26,6 +26,7 @@ export { withTransaction } from './db/transaction.js';
 
 // ── Durable Core-port adapters ──────────────────────────────────────────────
 export { PostgresMissionRepository } from './repositories/postgres-mission-repository.js';
+export { PostgresWorkflowRepository } from './repositories/postgres-workflow-repository.js';
 export {
   PostgresRunRepository,
   type VersionedRun,
@@ -56,6 +57,7 @@ export {
 
 // ── Mappers (persistence boundary; validated row ⇄ contract) ────────────────
 export { rowToMission, missionToColumns } from './mappers/mission-mapper.js';
+export { rowToWorkflow, workflowToColumns } from './mappers/workflow-mapper.js';
 export { rowToRun, runToColumns } from './mappers/run-mapper.js';
 export { rowToApprovalRequest, approvalToColumns } from './mappers/approval-mapper.js';
 export { rowToEvent, eventToColumns } from './mappers/event-mapper.js';
