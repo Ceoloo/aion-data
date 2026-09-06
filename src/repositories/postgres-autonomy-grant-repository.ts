@@ -44,8 +44,15 @@ export class PostgresAutonomyGrantRepository {
            AND tenant_id = $1
            AND agent_id = $2
            AND environment = $3
-           AND COALESCE(service_key, '') = COALESCE($4, '')
-           AND COALESCE(capability, '') = COALESCE($5, '')
+           AND (
+             ($4::text IS NOT NULL AND service_key = $4)
+             OR ($5::text IS NOT NULL AND capability = $5)
+             OR (
+               $4::text IS NULL AND $5::text IS NULL
+               AND service_key IS NULL AND capability IS NULL
+             )
+           )
+         ORDER BY last_reviewed_at DESC
          LIMIT 1`,
         [
           scope.tenantId,
