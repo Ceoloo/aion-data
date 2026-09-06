@@ -1,4 +1,4 @@
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { MockExecutionAdapter, capability } from '@aion/core';
 import type { PolicyEngineConfig } from '@aion/core';
 import { createDataLayer, type DataLayer } from '../../src/index.js';
@@ -42,6 +42,9 @@ describe('durability: process restart → approval → resume same run', () => {
   beforeAll(async () => {
     seed = createTestDataLayer();
     await ensureMigrated(seed);
+  });
+  beforeEach(async () => {
+    await truncateAll(seed);
   });
   afterEach(async () => {
     await truncateAll(seed);

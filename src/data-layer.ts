@@ -15,13 +15,14 @@ import { PostgresActorRepository } from './repositories/postgres-actor-repositor
 import { PostgresExecutionRepository } from './repositories/postgres-execution-repository.js';
 import { PostgresServiceRepository } from './repositories/postgres-service-repository.js';
 import { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
+import { PostgresEconomicsRepository } from './repositories/postgres-economics-repository.js';
 
 /**
  * The set of durable repositories/adapters, bound to a single {@link Queryable}
  * (the pool, or one transaction client). The first ports satisfy AION Core's
- * persistence contracts exactly; `actors`, `executions`, `services`, and
- * `outcomes` are aion-data-local repositories (Core defines no port for them
- * except workflows, which Mission 004 promotes to a Core port).
+ * persistence contracts exactly; `actors`, `executions`, `services`,
+ * `outcomes`, and `economics` are aion-data-local repositories (Core defines no
+ * port for them except workflows, which Mission 004 promotes to a Core port).
  */
 export interface DataRepositories {
   missions: PostgresMissionRepository;
@@ -34,6 +35,8 @@ export interface DataRepositories {
   executions: PostgresExecutionRepository;
   services: PostgresServiceRepository;
   outcomes: PostgresOutcomeRepository;
+  /** Mission 005 — SQL-derived economics rollups (no second ledger). */
+  economics: PostgresEconomicsRepository;
 }
 
 /** Builds the repository set over any query surface (pool or tx client). */
@@ -49,6 +52,7 @@ export function buildRepositories(db: Queryable): DataRepositories {
     executions: new PostgresExecutionRepository(db),
     services: new PostgresServiceRepository(db),
     outcomes: new PostgresOutcomeRepository(db),
+    economics: new PostgresEconomicsRepository(db),
   };
 }
 
