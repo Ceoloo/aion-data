@@ -3,7 +3,9 @@
 The Phase 2 schema is created by
 [`migrations/0001_initial_core_state.sql`](../migrations/0001_initial_core_state.sql).
 It is deliberately bounded to what the current AION Core contracts require:
-seven canonical tables plus the internal `schema_migrations` ledger.
+actors (with identity registry fields), missions, runs, approvals, events,
+telemetry_records, outcomes, and executions (`aion_execution`) — plus the
+internal `schema_migrations` ledger.
 
 ## Conventions
 
@@ -57,11 +59,49 @@ governance fields are nullable and required by CHECK when `actor_type='agent'`.
 | `default_risk_level` | text? | agent only; CHECK ∈ {R0..R3}. |
 | `escalation_conditions` | jsonb | agent escalation triggers. |
 | `cost_budget` | numeric? | ≥ 0. |
+| `agent_uri` | text? | agent only; `agent://aion/{domain}/{role}/{id}`; unique when present. |
+| `domain`,`role` | text? | agent only; identity registry axes. |
+| `tenant_id` | text? | multi-venture scope. |
+| `autonomy_level` | text? | CHECK ∈ {L0..L4}. |
+| `allowed_data` | jsonb | data allow-list. |
+| `input_contract`,`output_contract` | text? | I/O contract refs. |
+| `evaluation_criteria` | jsonb | eval ids / criteria. |
+| `observability_requirements` | jsonb | required telemetry/events. |
 | `metadata` | jsonb | |
 | `created_at`,`updated_at` | timestamptz | DB audit (not in Core contract). |
 
 Constraint `actors_agent_fields_coherent`: agents must carry `agent_id`,
-`purpose`, `owner`, `default_risk_level`; non-agents must not.
+`purpose`, `owner`, `default_risk_level`; non-agents must not (including the
+identity-registry columns).
+
+## `executions` (`aion_execution`)
+
+Canonical Execution Object — the atomic unit of AION machine labor. Created by
+Runtime's Execution Gateway HTTP surface (reconciled into `aion-runtime`, not a
+second gateway). One row per Core `Run` (`run_id` UNIQUE).
+
+| Column | Type | Notes |
+|---|---|---|
+| `execution_id` | text PK | Core `ExecutionId` (`exe_…`). |
+| `actor_id` | text FK → actors | |
+| `agent_uri` | text? | denormalized attributable agent handle. |
+| `tenant_id`,`domain` | text? | identity scope. |
+| `run_id` | text FK → runs UNIQUE | |
+| `request_id`,`command_id`,`correlation_id` | text | refs. |
+| `mission_id` | text? FK → missions | |
+| `workflow_id` | text? | |
+| `status` | text | CHECK lifecycle statuses incl. succeeded/failed. |
+| `autonomy_level` | text | CHECK ∈ {L0..L4}, default L1. |
+| `risk_level` | text? | CHECK ∈ {R0..R3}. |
+| `approval_id` | text? | no FK (mirrors runs). |
+| `cost` | jsonb | cost breakdown. |
+| `outcome_id` | text? | Core OutcomeId; no FK. |
+| `outcome_summary` | text? | |
+| `revenue_attributed` | numeric? | ROI field. |
+| `audit_trace` | jsonb | append-only audit entries. |
+| `started_at`,`completed_at` | timestamptz? | |
+| `metadata` | jsonb | |
+| `created_at`,`updated_at` | timestamptz | application-authored. |
 
 Design note — permissions are stored as **jsonb arrays, not normalized** into
 join tables. Core owns permission *semantics* and evaluates them in memory;

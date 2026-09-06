@@ -7,11 +7,10 @@ import { metadataObject, numberOrUndefined, stringArray } from './_shared.js';
  * Actor ⇄ row mapping.
  *
  * Actor is a discriminated union (human/agent/service/system); only agents carry
- * the governance fields (agentId, purpose, owner, defaultRiskLevel,
- * escalationConditions, costBudget), so those are attached only when the row is
- * an agent. Reads validate against the Core Actor contract. The DB audit columns
- * (created_at/updated_at) are not part of the Core Actor contract and are
- * dropped on the way out.
+ * the governance + identity-registry fields, so those are attached only when the
+ * row is an agent. Reads validate against the Core Actor contract. The DB audit
+ * columns (created_at/updated_at) are not part of the Core Actor contract and
+ * are dropped on the way out.
  */
 export function rowToActor(row: ActorRow): Actor {
   const base = {
@@ -37,6 +36,16 @@ export function rowToActor(row: ActorRow): Actor {
           ...(row.cost_budget !== null
             ? { costBudget: numberOrUndefined(row.cost_budget) }
             : {}),
+          ...(row.agent_uri ? { agentUri: row.agent_uri } : {}),
+          ...(row.domain ? { domain: row.domain } : {}),
+          ...(row.role ? { role: row.role } : {}),
+          ...(row.tenant_id ? { tenantId: row.tenant_id } : {}),
+          ...(row.autonomy_level ? { autonomyLevel: row.autonomy_level } : {}),
+          allowedData: stringArray(row.allowed_data),
+          ...(row.input_contract ? { inputContract: row.input_contract } : {}),
+          ...(row.output_contract ? { outputContract: row.output_contract } : {}),
+          evaluationCriteria: stringArray(row.evaluation_criteria),
+          observabilityRequirements: stringArray(row.observability_requirements),
         }
       : base;
 
@@ -65,6 +74,16 @@ export function actorToColumns(actor: Actor): {
   default_risk_level: string | null;
   escalation_conditions: string;
   cost_budget: number | null;
+  agent_uri: string | null;
+  domain: string | null;
+  role: string | null;
+  tenant_id: string | null;
+  autonomy_level: string | null;
+  allowed_data: string;
+  input_contract: string | null;
+  output_contract: string | null;
+  evaluation_criteria: string;
+  observability_requirements: string;
   metadata: string;
 } {
   const isAgent = actor.actorType === 'agent';
@@ -82,6 +101,18 @@ export function actorToColumns(actor: Actor): {
     default_risk_level: isAgent ? actor.defaultRiskLevel : null,
     escalation_conditions: isAgent ? JSON.stringify(actor.escalationConditions) : '[]',
     cost_budget: isAgent ? actor.costBudget ?? null : null,
+    agent_uri: isAgent ? actor.agentUri ?? null : null,
+    domain: isAgent ? actor.domain ?? null : null,
+    role: isAgent ? actor.role ?? null : null,
+    tenant_id: isAgent ? actor.tenantId ?? null : null,
+    autonomy_level: isAgent ? actor.autonomyLevel ?? null : null,
+    allowed_data: isAgent ? JSON.stringify(actor.allowedData) : '[]',
+    input_contract: isAgent ? actor.inputContract ?? null : null,
+    output_contract: isAgent ? actor.outputContract ?? null : null,
+    evaluation_criteria: isAgent ? JSON.stringify(actor.evaluationCriteria) : '[]',
+    observability_requirements: isAgent
+      ? JSON.stringify(actor.observabilityRequirements)
+      : '[]',
     metadata: JSON.stringify(actor.metadata),
   };
 }

@@ -24,6 +24,44 @@ export interface ActorRow {
   default_risk_level: string | null;
   escalation_conditions: unknown;
   cost_budget: string | null;
+  agent_uri: string | null;
+  domain: string | null;
+  role: string | null;
+  tenant_id: string | null;
+  autonomy_level: string | null;
+  allowed_data: unknown;
+  input_contract: string | null;
+  output_contract: string | null;
+  evaluation_criteria: unknown;
+  observability_requirements: unknown;
+  metadata: Record<string, unknown>;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ExecutionRow {
+  execution_id: string;
+  actor_id: string;
+  agent_uri: string | null;
+  tenant_id: string | null;
+  domain: string | null;
+  run_id: string;
+  request_id: string;
+  command_id: string;
+  mission_id: string | null;
+  workflow_id: string | null;
+  correlation_id: string;
+  status: string;
+  autonomy_level: string;
+  risk_level: string | null;
+  approval_id: string | null;
+  cost: unknown;
+  outcome_id: string | null;
+  outcome_summary: string | null;
+  revenue_attributed: string | null;
+  audit_trace: unknown;
+  started_at: Date | null;
+  completed_at: Date | null;
   metadata: Record<string, unknown>;
   created_at: Date;
   updated_at: Date;

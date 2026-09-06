@@ -39,16 +39,29 @@ export function makeHuman(name = 'Approver Human'): HumanActor {
 }
 
 export function makeAgent(
-  overrides: { permissions?: string[]; maxRiskLevel?: 'R0' | 'R1' | 'R2' | 'R3' } = {},
+  overrides: {
+    permissions?: string[];
+    maxRiskLevel?: 'R0' | 'R1' | 'R2' | 'R3';
+    domain?: string;
+    role?: string;
+    tenantId?: string;
+  } = {},
 ): AgentActor {
   return createAgentActor({
     name: 'WorkerAgent',
     purpose: 'Perform governed work for tests.',
     owner: 'platform-team',
+    domain: overrides.domain ?? 'platform',
+    role: overrides.role ?? 'worker',
+    tenantId: overrides.tenantId ?? 'aion-test',
     permissions: (overrides.permissions ?? ['deployment.execute']).map((c) => capability(c)),
     defaultRiskLevel: 'R1',
     maxRiskLevel: overrides.maxRiskLevel ?? 'R3',
+    autonomyLevel: 'L1',
     escalationConditions: ['anything unexpected'],
+    allowedData: ['test.fixture'],
+    evaluationCriteria: ['test.roundtrip'],
+    observabilityRequirements: ['telemetry.cost'],
     costBudget: 100,
   });
 }

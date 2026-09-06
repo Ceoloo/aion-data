@@ -41,6 +41,14 @@ describe('PostgresActorRepository', () => {
     expect(got.permissions).toEqual(agent.permissions);
     expect(got.escalationConditions).toEqual(agent.escalationConditions);
     expect(got.costBudget).toBe(100);
+    expect(got.agentUri).toBe(agent.agentUri);
+    expect(got.domain).toBe('platform');
+    expect(got.role).toBe('worker');
+    expect(got.tenantId).toBe('aion-test');
+    expect(got.autonomyLevel).toBe('L1');
+    expect(got.allowedData).toEqual(['test.fixture']);
+    expect(got.evaluationCriteria).toEqual(['test.roundtrip']);
+    expect(got.observabilityRequirements).toEqual(['telemetry.cost']);
   });
 
   it('upserts and lists actors', async () => {

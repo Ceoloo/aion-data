@@ -36,6 +36,7 @@ export { PostgresTelemetrySink } from './repositories/postgres-telemetry-sink.js
 
 // ── aion-data-local repositories (no Core port) ─────────────────────────────
 export { PostgresActorRepository } from './repositories/postgres-actor-repository.js';
+export { PostgresExecutionRepository } from './repositories/postgres-execution-repository.js';
 export { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
 export {
   type OutcomeRecord,
@@ -59,6 +60,10 @@ export { rowToApprovalRequest, approvalToColumns } from './mappers/approval-mapp
 export { rowToEvent, eventToColumns } from './mappers/event-mapper.js';
 export { rowToTelemetryRecord, telemetryToColumns } from './mappers/telemetry-mapper.js';
 export { rowToActor, actorToColumns } from './mappers/actor-mapper.js';
+export {
+  rowToExecution,
+  executionToColumns,
+} from './mappers/execution-mapper.js';
 export {
   rowToOutcomeRecord,
   outcomeToColumns,
