@@ -226,3 +226,28 @@ export interface OutcomeRow {
   created_at: Date;
   updated_at: Date;
 }
+
+/** Mission 007 — durable EvaluationResult row. */
+export interface EvaluationResultRow {
+  evaluation_id: string;
+  execution_id: string;
+  mission_id: string | null;
+  service_key: string | null;
+  service_version: number | null;
+  agent_id: string | null;
+  provider: string | null;
+  model: string | null;
+  workflow_version: string | null;
+  quality_score: number;
+  success: boolean;
+  latency_ms: number;
+  total_cost: number;
+  human_intervention: boolean;
+  policy_events: unknown;
+  business_outcome: string | null;
+  economic_value: string | number | null;
+  tenant_id: string | null;
+  evaluated_at: Date;
+  metadata: Record<string, unknown>;
+  created_at: Date;
+}

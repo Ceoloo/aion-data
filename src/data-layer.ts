@@ -16,6 +16,7 @@ import { PostgresExecutionRepository } from './repositories/postgres-execution-r
 import { PostgresServiceRepository } from './repositories/postgres-service-repository.js';
 import { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
 import { PostgresEconomicsRepository } from './repositories/postgres-economics-repository.js';
+import { PostgresEvaluationRepository } from './repositories/postgres-evaluation-repository.js';
 
 /**
  * The set of durable repositories/adapters, bound to a single {@link Queryable}
@@ -37,6 +38,8 @@ export interface DataRepositories {
   outcomes: PostgresOutcomeRepository;
   /** Mission 005 — SQL-derived economics rollups (no second ledger). */
   economics: PostgresEconomicsRepository;
+  /** Mission 007 — durable evaluations + scorecard aggregation. */
+  evaluations: PostgresEvaluationRepository;
 }
 
 /** Builds the repository set over any query surface (pool or tx client). */
@@ -53,6 +56,7 @@ export function buildRepositories(db: Queryable): DataRepositories {
     services: new PostgresServiceRepository(db),
     outcomes: new PostgresOutcomeRepository(db),
     economics: new PostgresEconomicsRepository(db),
+    evaluations: new PostgresEvaluationRepository(db),
   };
 }
 
