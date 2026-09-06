@@ -134,6 +134,22 @@ export class PostgresRunRepository implements RunRepository {
       throw wrap('list runs', err, {});
     }
   }
+
+  async getByRequestId(requestId: string): Promise<Run | undefined> {
+    try {
+      const { rows } = await this.db.query<RunRow>(
+        `SELECT * FROM runs
+         WHERE request_id = $1
+         ORDER BY created_at ASC, run_id ASC
+         LIMIT 1`,
+        [requestId],
+      );
+      const row = rows[0];
+      return row ? rowToRun(row) : undefined;
+    } catch (err) {
+      throw wrap('get run by requestId', err, { requestId });
+    }
+  }
 }
 
 function wrap(op: string, err: unknown, details: Record<string, unknown>): DataError {
