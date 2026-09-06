@@ -46,6 +46,7 @@ export {
   type UpdateOutcomeInput,
 } from './outcomes/outcome.js';
 export { PostgresEconomicsRepository } from './repositories/postgres-economics-repository.js';
+export { PostgresEvaluationRepository } from './repositories/postgres-evaluation-repository.js';
 
 // ── Migrations ──────────────────────────────────────────────────────────────
 export {
@@ -74,6 +75,10 @@ export {
   outcomeToColumns,
   toOutcomeReference,
 } from './mappers/outcome-mapper.js';
+export {
+  rowToEvaluation,
+  evaluationToColumns,
+} from './mappers/evaluation-mapper.js';
 
 // ── Errors ──────────────────────────────────────────────────────────────────
 export {

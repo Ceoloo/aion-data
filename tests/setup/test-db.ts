@@ -25,6 +25,7 @@ export function createTestDataLayer(): DataLayer {
 
 /** The canonical tables, most-dependent first (order is moot under CASCADE). */
 export const ALL_TABLES = [
+  'evaluation_results',
   'executions',
   'services',
   'outcomes',
