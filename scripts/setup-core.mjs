@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 
 const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-core';
 // Mission 008 aion-core branch tip (AutonomyGrant). Re-pin after core lands.
-const CORE_REF = process.env.AION_CORE_REF ?? '6ae216390b63b483eb10cb03db5741efba1c6d3a';
+const CORE_REF = process.env.AION_CORE_REF ?? '540bfad5d01aae777887b44dfea58dbc024a7110';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorDir = resolve(root, 'vendor', 'aion-core');
