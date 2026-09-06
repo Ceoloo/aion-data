@@ -24,8 +24,8 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-core';
-// Mission 004 AION Core — MissionOrchestrator + WorkflowRepository port (33704f8).
-const CORE_REF = process.env.AION_CORE_REF ?? '33704f89b5ed65e20faaf09415035f3ba8b7c834';
+// Mission 004 AION Core — MissionOrchestrator + WorkflowRepository port (f29447b).
+const CORE_REF = process.env.AION_CORE_REF ?? 'f29447bbd423640e980653eab7d840099d1b1f65';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorDir = resolve(root, 'vendor', 'aion-core');
