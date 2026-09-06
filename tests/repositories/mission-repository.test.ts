@@ -1,6 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { createMission } from '@aion/core';
+import { createExecutionObject, createMission } from '@aion/core';
 import { createTestDataLayer, ensureMigrated, truncateAll } from '../setup/test-db.js';
+import { makeAgent, makeRun } from '../setup/fixtures.js';
 import type { DataLayer } from '../../src/index.js';
 
 // MISSION_ROUND_TRIP + JSON metadata + timestamp + upsert semantics.
@@ -55,5 +56,36 @@ describe('PostgresMissionRepository', () => {
 
     const { rows } = await dl.pool.query('SELECT count(*)::int AS n FROM missions');
     expect(rows[0].n).toBe(1);
+  });
+
+  it('listForTenant returns DISTINCT missions referenced by tenant executions', async () => {
+    const agentA = makeAgent({ tenantId: 'tenant-a' });
+    const agentB = makeAgent({ tenantId: 'tenant-b' });
+    const missionA = createMission({ name: 'A', owner: 'o', objective: 'obj' });
+    const missionB = createMission({ name: 'B', owner: 'o', objective: 'obj' });
+    await dl.actors.save(agentA);
+    await dl.actors.save(agentB);
+    await dl.missions.save(missionA);
+    await dl.missions.save(missionB);
+
+    const runA1 = makeRun({ actorId: agentA.actorId, missionId: missionA.missionId, state: 'completed' });
+    const runA2 = makeRun({ actorId: agentA.actorId, missionId: missionA.missionId, state: 'completed' });
+    const runB = makeRun({ actorId: agentB.actorId, missionId: missionB.missionId, state: 'completed' });
+    await dl.runs.save(runA1);
+    await dl.runs.save(runA2);
+    await dl.runs.save(runB);
+
+    await dl.executions.save(createExecutionObject({ run: runA1, agent: agentA }));
+    await dl.executions.save(createExecutionObject({ run: runA2, agent: agentA }));
+    await dl.executions.save(createExecutionObject({ run: runB, agent: agentB }));
+
+    const forA = await dl.missions.listForTenant('tenant-a');
+    expect(forA.map((m) => m.missionId)).toEqual([missionA.missionId]);
+
+    const forB = await dl.missions.listForTenant('tenant-b');
+    expect(forB.map((m) => m.missionId)).toEqual([missionB.missionId]);
+
+    const empty = await dl.missions.listForTenant('tenant-none');
+    expect(empty).toEqual([]);
   });
 });

@@ -107,6 +107,58 @@ export class PostgresApprovalStore implements ApprovalStore {
       throw wrap('list approvals by run', err, { runId });
     }
   }
+
+  /**
+   * Mission 006 — approvals for a tenant (Control Center inspect queue).
+   * Primary filter is `approvals.tenant_id`. Also includes approvals linked to
+   * the tenant's executions/runs (rows stamped before tenant_id was always set).
+   */
+  async listForTenant(
+    tenantId: string,
+    status?: ApprovalStatus,
+  ): Promise<ApprovalRequest[]> {
+    try {
+      const { rows } = status
+        ? await this.db.query<ApprovalRow>(
+            `SELECT a.*
+             FROM approvals a
+             WHERE (
+               a.tenant_id = $1
+               OR EXISTS (
+                 SELECT 1 FROM executions e
+                 WHERE e.tenant_id = $1
+                   AND (
+                     e.execution_id = a.execution_id
+                     OR e.run_id = a.run_id
+                   )
+               )
+             )
+             AND a.status = $2
+             ORDER BY a.requested_at DESC, a.approval_id`,
+            [tenantId, status],
+          )
+        : await this.db.query<ApprovalRow>(
+            `SELECT a.*
+             FROM approvals a
+             WHERE (
+               a.tenant_id = $1
+               OR EXISTS (
+                 SELECT 1 FROM executions e
+                 WHERE e.tenant_id = $1
+                   AND (
+                     e.execution_id = a.execution_id
+                     OR e.run_id = a.run_id
+                   )
+               )
+             )
+             ORDER BY a.requested_at DESC, a.approval_id`,
+            [tenantId],
+          );
+      return rows.map(rowToApprovalRequest);
+    } catch (err) {
+      throw wrap('list approvals for tenant', err, { tenantId, status });
+    }
+  }
 }
 
 function wrap(op: string, err: unknown, details: Record<string, unknown>): DataError {
