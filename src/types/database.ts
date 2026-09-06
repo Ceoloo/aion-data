@@ -67,6 +67,32 @@ export interface ExecutionRow {
   updated_at: Date;
 }
 
+export interface ServiceRow {
+  service_id: string;
+  service_key: string;
+  name: string;
+  version: number;
+  capability: string;
+  owner: string;
+  description: string | null;
+  input_schema_ref: string | null;
+  output_schema_ref: string | null;
+  required_permissions: unknown;
+  agent_compatibility: unknown;
+  tools: unknown;
+  risk_level: string;
+  approval_required: boolean;
+  cost_hint_units: string | null;
+  sla_hint: string | null;
+  eval_refs: unknown;
+  consumers: unknown;
+  workflow_id: string | null;
+  status: string;
+  metadata: Record<string, unknown>;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface MissionRow {
   mission_id: string;
   name: string;

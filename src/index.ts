@@ -37,6 +37,7 @@ export { PostgresTelemetrySink } from './repositories/postgres-telemetry-sink.js
 // ── aion-data-local repositories (no Core port) ─────────────────────────────
 export { PostgresActorRepository } from './repositories/postgres-actor-repository.js';
 export { PostgresExecutionRepository } from './repositories/postgres-execution-repository.js';
+export { PostgresServiceRepository } from './repositories/postgres-service-repository.js';
 export { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
 export {
   type OutcomeRecord,
@@ -64,6 +65,7 @@ export {
   rowToExecution,
   executionToColumns,
 } from './mappers/execution-mapper.js';
+export { rowToService, serviceToColumns } from './mappers/service-mapper.js';
 export {
   rowToOutcomeRecord,
   outcomeToColumns,

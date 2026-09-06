@@ -24,8 +24,8 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-core';
-// Phase 1 AION Core — Execution Object + agent identity (eb37d95).
-const CORE_REF = process.env.AION_CORE_REF ?? 'eb37d9581f95c4f187431305dc15c4c622e3d630';
+// Phase 1 AION Core — Service Catalog v0 + Execution Object (4679d73).
+const CORE_REF = process.env.AION_CORE_REF ?? '4679d739ed94cbf6d22a6faec98f57bdeab4dd0e';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorDir = resolve(root, 'vendor', 'aion-core');

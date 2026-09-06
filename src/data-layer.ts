@@ -12,13 +12,14 @@ import { PostgresEventSink } from './repositories/postgres-event-sink.js';
 import { PostgresTelemetrySink } from './repositories/postgres-telemetry-sink.js';
 import { PostgresActorRepository } from './repositories/postgres-actor-repository.js';
 import { PostgresExecutionRepository } from './repositories/postgres-execution-repository.js';
+import { PostgresServiceRepository } from './repositories/postgres-service-repository.js';
 import { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
 
 /**
  * The set of durable repositories/adapters, bound to a single {@link Queryable}
  * (the pool, or one transaction client). The first five satisfy AION Core's
- * persistence ports exactly; `actors`, `executions`, and `outcomes` are
- * aion-data-local repositories (Core defines no port for them).
+ * persistence ports exactly; `actors`, `executions`, `services`, and `outcomes`
+ * are aion-data-local repositories (Core defines no port for them).
  */
 export interface DataRepositories {
   missions: PostgresMissionRepository;
@@ -28,6 +29,7 @@ export interface DataRepositories {
   telemetry: PostgresTelemetrySink;
   actors: PostgresActorRepository;
   executions: PostgresExecutionRepository;
+  services: PostgresServiceRepository;
   outcomes: PostgresOutcomeRepository;
 }
 
@@ -41,6 +43,7 @@ export function buildRepositories(db: Queryable): DataRepositories {
     telemetry: new PostgresTelemetrySink(db),
     actors: new PostgresActorRepository(db),
     executions: new PostgresExecutionRepository(db),
+    services: new PostgresServiceRepository(db),
     outcomes: new PostgresOutcomeRepository(db),
   };
 }
