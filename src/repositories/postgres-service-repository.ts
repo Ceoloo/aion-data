@@ -1,5 +1,6 @@
 import {
   buildMission001Catalog,
+  buildMission002Catalog,
   type ServiceDefinition,
   type ServiceId,
   type ServiceKey,
@@ -116,6 +117,22 @@ export class PostgresServiceRepository {
    */
   async seedMission001(): Promise<{ inserted: number; total: number }> {
     const catalog = buildMission001Catalog();
+    let inserted = 0;
+    for (const svc of catalog) {
+      const existing = await this.getByKey(svc.serviceKey);
+      if (!existing) {
+        await this.save(svc);
+        inserted += 1;
+      }
+    }
+    return { inserted, total: catalog.length };
+  }
+
+  /**
+   * Idempotent Mission 002 seed: inserts missing Media/G-Star catalog keys.
+   */
+  async seedMission002(): Promise<{ inserted: number; total: number }> {
+    const catalog = buildMission002Catalog();
     let inserted = 0;
     for (const svc of catalog) {
       const existing = await this.getByKey(svc.serviceKey);
