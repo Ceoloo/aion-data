@@ -45,6 +45,7 @@ export {
   type CreateOutcomeInput,
   type UpdateOutcomeInput,
 } from './outcomes/outcome.js';
+export { PostgresEconomicsRepository } from './repositories/postgres-economics-repository.js';
 
 // ── Migrations ──────────────────────────────────────────────────────────────
 export {
