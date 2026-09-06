@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 
 const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-core';
 // Week 3 AION Core — Mission 001 catalog with live-call Copilot services (317ee94).
-const CORE_REF = process.env.AION_CORE_REF ?? 'ef4c7aad1572ecf7525b7b668662159cf22ab5dc';
+const CORE_REF = process.env.AION_CORE_REF ?? 'c617bc8dcf3221b42588dec1512d841afb379421';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorDir = resolve(root, 'vendor', 'aion-core');
