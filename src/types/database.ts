@@ -28,6 +28,9 @@ export interface ActorRow {
   domain: string | null;
   role: string | null;
   tenant_id: string | null;
+  company_id: string | null;
+  venture_id: string | null;
+  project_id: string | null;
   autonomy_level: string | null;
   allowed_data: unknown;
   input_contract: string | null;
@@ -45,6 +48,11 @@ export interface ExecutionRow {
   agent_uri: string | null;
   tenant_id: string | null;
   domain: string | null;
+  company_id: string | null;
+  venture_id: string | null;
+  project_id: string | null;
+  parent_execution_id: string | null;
+  root_execution_id: string | null;
   run_id: string;
   request_id: string;
   command_id: string;
@@ -128,6 +136,8 @@ export interface ApprovalRow {
   run_id: string;
   request_id: string;
   mission_id: string | null;
+  execution_id: string | null;
+  tenant_id: string | null;
   command_snapshot: Record<string, unknown>;
   risk_level: string;
   reason: string;
@@ -136,6 +146,8 @@ export interface ApprovalRow {
   decided_at: Date | null;
   decided_by: string | null;
   note: string | null;
+  expires_at: Date | null;
+  consumed_at: Date | null;
   created_at: Date;
   updated_at: Date;
 }

@@ -27,6 +27,13 @@ export function rowToExecution(row: ExecutionRow): ExecutionObject {
     ...(row.agent_uri ? { agentUri: row.agent_uri } : {}),
     ...(row.tenant_id ? { tenantId: row.tenant_id } : {}),
     ...(row.domain ? { domain: row.domain } : {}),
+    ...(row.company_id ? { companyId: row.company_id } : {}),
+    ...(row.venture_id ? { ventureId: row.venture_id } : {}),
+    ...(row.project_id ? { projectId: row.project_id } : {}),
+    ...(row.parent_execution_id
+      ? { parentExecutionId: row.parent_execution_id }
+      : {}),
+    ...(row.root_execution_id ? { rootExecutionId: row.root_execution_id } : {}),
     runId: row.run_id,
     requestId: row.request_id,
     commandId: row.command_id,
@@ -69,6 +76,11 @@ export function executionToColumns(exe: ExecutionObject): {
   agent_uri: string | null;
   tenant_id: string | null;
   domain: string | null;
+  company_id: string | null;
+  venture_id: string | null;
+  project_id: string | null;
+  parent_execution_id: string | null;
+  root_execution_id: string | null;
   run_id: string;
   request_id: string;
   command_id: string;
@@ -96,6 +108,11 @@ export function executionToColumns(exe: ExecutionObject): {
     agent_uri: exe.agentUri ?? null,
     tenant_id: exe.tenantId ?? null,
     domain: exe.domain ?? null,
+    company_id: exe.companyId ?? null,
+    venture_id: exe.ventureId ?? null,
+    project_id: exe.projectId ?? null,
+    parent_execution_id: exe.parentExecutionId ?? null,
+    root_execution_id: exe.rootExecutionId ?? null,
     run_id: exe.runId,
     request_id: exe.requestId,
     command_id: exe.commandId,
