@@ -251,3 +251,26 @@ export interface EvaluationResultRow {
   metadata: Record<string, unknown>;
   created_at: Date;
 }
+
+/** Mission 008 — durable AutonomyGrant row. */
+export interface AutonomyGrantRow {
+  grant_id: string;
+  agent_id: string;
+  service_key: string | null;
+  capability: string | null;
+  tenant_id: string;
+  environment: string;
+  current_level: string;
+  eligible_level: string;
+  evidence: unknown;
+  status: string;
+  grant_reason: string;
+  granted_by: string;
+  l4_allowed: boolean;
+  max_waive_risk: string;
+  last_reviewed_at: Date;
+  created_at: Date;
+  revoked_at: Date | null;
+  revoke_reason: string | null;
+  metadata: Record<string, unknown>;
+}
