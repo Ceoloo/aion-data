@@ -49,4 +49,23 @@ describe('PostgresServiceRepository', () => {
       'revenue.signals@1',
     ]);
   });
+
+  it('seeds Mission 002 Media catalog idempotently alongside Mission 001', async () => {
+    await dl.services.seedMission001();
+    const first = await dl.services.seedMission002();
+    expect(first.inserted).toBe(6);
+    expect(first.total).toBe(6);
+    const second = await dl.services.seedMission002();
+    expect(second.inserted).toBe(0);
+    const active = await dl.services.list('active');
+    expect(active).toHaveLength(17);
+    expect(active.map((s) => s.serviceKey)).toEqual(
+      expect.arrayContaining([
+        'media.trend.research@1',
+        'media.post.publish@1',
+        'revenue.lead.research@1',
+      ]),
+    );
+  });
+
 });
