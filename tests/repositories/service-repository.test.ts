@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { buildMission001Catalog, buildMission002Catalog } from '@aion/core';
+import { buildMission001Catalog } from '@aion/core';
 import { createTestDataLayer, ensureMigrated, truncateAll } from '../setup/test-db.js';
 import type { DataLayer } from '../../src/index.js';
 
