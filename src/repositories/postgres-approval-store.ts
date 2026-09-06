@@ -42,19 +42,27 @@ export class PostgresApprovalStore implements ApprovalStore {
     try {
       await this.db.query(
         `INSERT INTO approvals (
-           approval_id, run_id, request_id, mission_id, command_snapshot,
-           risk_level, reason, status, requested_at, decided_at, decided_by, note
-         ) VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7, $8, $9, $10, $11, $12)
+           approval_id, run_id, request_id, mission_id, execution_id, tenant_id,
+           command_snapshot, risk_level, reason, status, requested_at,
+           decided_at, decided_by, note, expires_at, consumed_at
+         ) VALUES (
+           $1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14, $15, $16
+         )
          ON CONFLICT (approval_id) DO UPDATE SET
            status = EXCLUDED.status,
            decided_at = EXCLUDED.decided_at,
            decided_by = EXCLUDED.decided_by,
            note = EXCLUDED.note,
+           expires_at = EXCLUDED.expires_at,
+           consumed_at = EXCLUDED.consumed_at,
+           execution_id = EXCLUDED.execution_id,
+           tenant_id = EXCLUDED.tenant_id,
            updated_at = now()`,
         [
-          c.approval_id, c.run_id, c.request_id, c.mission_id, c.command_snapshot,
-          c.risk_level, c.reason, c.status, c.requested_at, c.decided_at,
-          c.decided_by, c.note,
+          c.approval_id, c.run_id, c.request_id, c.mission_id, c.execution_id,
+          c.tenant_id, c.command_snapshot, c.risk_level, c.reason, c.status,
+          c.requested_at, c.decided_at, c.decided_by, c.note, c.expires_at,
+          c.consumed_at,
         ],
       );
     } catch (err) {

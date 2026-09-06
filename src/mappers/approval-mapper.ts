@@ -19,6 +19,8 @@ export function rowToApprovalRequest(row: ApprovalRow): ApprovalRequest {
     runId: row.run_id,
     requestId: row.request_id,
     ...(row.mission_id !== null ? { missionId: row.mission_id } : {}),
+    ...(row.execution_id !== null ? { executionId: row.execution_id } : {}),
+    ...(row.tenant_id !== null ? { tenantId: row.tenant_id } : {}),
     command: row.command_snapshot,
     riskLevel: row.risk_level,
     reason: row.reason,
@@ -27,6 +29,8 @@ export function rowToApprovalRequest(row: ApprovalRow): ApprovalRequest {
     ...(row.decided_at !== null ? { decidedAt: toIsoOrUndefined(row.decided_at) } : {}),
     ...(row.decided_by !== null ? { decidedBy: row.decided_by } : {}),
     ...(row.note !== null ? { note: row.note } : {}),
+    ...(row.expires_at !== null ? { expiresAt: toIsoOrUndefined(row.expires_at) } : {}),
+    ...(row.consumed_at !== null ? { consumedAt: toIsoOrUndefined(row.consumed_at) } : {}),
   });
   if (!parsed.success) {
     throw new MappingError('persisted approval failed Core contract validation', {
@@ -43,6 +47,8 @@ export function approvalToColumns(request: ApprovalRequest): {
   run_id: string;
   request_id: string;
   mission_id: string | null;
+  execution_id: string | null;
+  tenant_id: string | null;
   command_snapshot: string;
   risk_level: string;
   reason: string;
@@ -51,12 +57,16 @@ export function approvalToColumns(request: ApprovalRequest): {
   decided_at: string | null;
   decided_by: string | null;
   note: string | null;
+  expires_at: string | null;
+  consumed_at: string | null;
 } {
   return {
     approval_id: request.approvalId,
     run_id: request.runId,
     request_id: request.requestId,
     mission_id: request.missionId ?? null,
+    execution_id: request.executionId ?? null,
+    tenant_id: request.tenantId ?? null,
     command_snapshot: JSON.stringify(request.command),
     risk_level: request.riskLevel,
     reason: request.reason,
@@ -65,5 +75,7 @@ export function approvalToColumns(request: ApprovalRequest): {
     decided_at: request.decidedAt ?? null,
     decided_by: request.decidedBy ?? null,
     note: request.note ?? null,
+    expires_at: request.expiresAt ?? null,
+    consumed_at: request.consumedAt ?? null,
   };
 }

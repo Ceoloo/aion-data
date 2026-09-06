@@ -40,6 +40,9 @@ export function rowToActor(row: ActorRow): Actor {
           ...(row.domain ? { domain: row.domain } : {}),
           ...(row.role ? { role: row.role } : {}),
           ...(row.tenant_id ? { tenantId: row.tenant_id } : {}),
+          ...(row.company_id ? { companyId: row.company_id } : {}),
+          ...(row.venture_id ? { ventureId: row.venture_id } : {}),
+          ...(row.project_id ? { projectId: row.project_id } : {}),
           ...(row.autonomy_level ? { autonomyLevel: row.autonomy_level } : {}),
           allowedData: stringArray(row.allowed_data),
           ...(row.input_contract ? { inputContract: row.input_contract } : {}),
@@ -78,6 +81,9 @@ export function actorToColumns(actor: Actor): {
   domain: string | null;
   role: string | null;
   tenant_id: string | null;
+  company_id: string | null;
+  venture_id: string | null;
+  project_id: string | null;
   autonomy_level: string | null;
   allowed_data: string;
   input_contract: string | null;
@@ -105,6 +111,9 @@ export function actorToColumns(actor: Actor): {
     domain: isAgent ? actor.domain ?? null : null,
     role: isAgent ? actor.role ?? null : null,
     tenant_id: isAgent ? actor.tenantId ?? null : null,
+    company_id: isAgent ? actor.companyId ?? null : null,
+    venture_id: isAgent ? actor.ventureId ?? null : null,
+    project_id: isAgent ? actor.projectId ?? null : null,
     autonomy_level: isAgent ? actor.autonomyLevel ?? null : null,
     allowed_data: isAgent ? JSON.stringify(actor.allowedData) : '[]',
     input_contract: isAgent ? actor.inputContract ?? null : null,
