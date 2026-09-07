@@ -24,8 +24,8 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-core';
-// Mission 008 aion-core branch tip (AutonomyGrant). Re-pin after core lands.
-const CORE_REF = process.env.AION_CORE_REF ?? '540bfad5d01aae777887b44dfea58dbc024a7110';
+// Mission 009 aion-core tip (ExternalSideEffect + CRM catalog). Re-pin after core lands.
+const CORE_REF = process.env.AION_CORE_REF ?? '999f4644a61377b83473fd15c98a4afb0854bab0';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorDir = resolve(root, 'vendor', 'aion-core');

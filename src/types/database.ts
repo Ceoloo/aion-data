@@ -274,3 +274,24 @@ export interface AutonomyGrantRow {
   revoke_reason: string | null;
   metadata: Record<string, unknown>;
 }
+
+/** Mission 009 — durable external side-effect ledger row. */
+export interface ExternalSideEffectRow {
+  side_effect_id: string;
+  execution_id: string;
+  tenant_id: string;
+  service_key: string;
+  idempotency_key: string;
+  external_resource_id: string | null;
+  external_request_id: string | null;
+  requested_action: string;
+  approval_id: string | null;
+  performed_at: Date;
+  result_hash: string | null;
+  status: string;
+  provider: string;
+  error_code: string | null;
+  error_message: string | null;
+  metadata: Record<string, unknown>;
+  created_at: Date;
+}
