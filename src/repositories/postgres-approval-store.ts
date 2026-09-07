@@ -42,19 +42,27 @@ export class PostgresApprovalStore implements ApprovalStore {
     try {
       await this.db.query(
         `INSERT INTO approvals (
-           approval_id, run_id, request_id, mission_id, command_snapshot,
-           risk_level, reason, status, requested_at, decided_at, decided_by, note
-         ) VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7, $8, $9, $10, $11, $12)
+           approval_id, run_id, request_id, mission_id, execution_id, tenant_id,
+           command_snapshot, risk_level, reason, status, requested_at,
+           decided_at, decided_by, note, expires_at, consumed_at
+         ) VALUES (
+           $1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, $13, $14, $15, $16
+         )
          ON CONFLICT (approval_id) DO UPDATE SET
            status = EXCLUDED.status,
            decided_at = EXCLUDED.decided_at,
            decided_by = EXCLUDED.decided_by,
            note = EXCLUDED.note,
+           expires_at = EXCLUDED.expires_at,
+           consumed_at = EXCLUDED.consumed_at,
+           execution_id = EXCLUDED.execution_id,
+           tenant_id = EXCLUDED.tenant_id,
            updated_at = now()`,
         [
-          c.approval_id, c.run_id, c.request_id, c.mission_id, c.command_snapshot,
-          c.risk_level, c.reason, c.status, c.requested_at, c.decided_at,
-          c.decided_by, c.note,
+          c.approval_id, c.run_id, c.request_id, c.mission_id, c.execution_id,
+          c.tenant_id, c.command_snapshot, c.risk_level, c.reason, c.status,
+          c.requested_at, c.decided_at, c.decided_by, c.note, c.expires_at,
+          c.consumed_at,
         ],
       );
     } catch (err) {
@@ -97,6 +105,58 @@ export class PostgresApprovalStore implements ApprovalStore {
       return rows.map(rowToApprovalRequest);
     } catch (err) {
       throw wrap('list approvals by run', err, { runId });
+    }
+  }
+
+  /**
+   * Mission 006 — approvals for a tenant (Control Center inspect queue).
+   * Primary filter is `approvals.tenant_id`. Also includes approvals linked to
+   * the tenant's executions/runs (rows stamped before tenant_id was always set).
+   */
+  async listForTenant(
+    tenantId: string,
+    status?: ApprovalStatus,
+  ): Promise<ApprovalRequest[]> {
+    try {
+      const { rows } = status
+        ? await this.db.query<ApprovalRow>(
+            `SELECT a.*
+             FROM approvals a
+             WHERE (
+               a.tenant_id = $1
+               OR EXISTS (
+                 SELECT 1 FROM executions e
+                 WHERE e.tenant_id = $1
+                   AND (
+                     e.execution_id = a.execution_id
+                     OR e.run_id = a.run_id
+                   )
+               )
+             )
+             AND a.status = $2
+             ORDER BY a.requested_at DESC, a.approval_id`,
+            [tenantId, status],
+          )
+        : await this.db.query<ApprovalRow>(
+            `SELECT a.*
+             FROM approvals a
+             WHERE (
+               a.tenant_id = $1
+               OR EXISTS (
+                 SELECT 1 FROM executions e
+                 WHERE e.tenant_id = $1
+                   AND (
+                     e.execution_id = a.execution_id
+                     OR e.run_id = a.run_id
+                   )
+               )
+             )
+             ORDER BY a.requested_at DESC, a.approval_id`,
+            [tenantId],
+          );
+      return rows.map(rowToApprovalRequest);
+    } catch (err) {
+      throw wrap('list approvals for tenant', err, { tenantId, status });
     }
   }
 }

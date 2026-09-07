@@ -24,8 +24,8 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-core';
-// Phase 1 AION Core control-plane kernel (5ea731a).
-const CORE_REF = process.env.AION_CORE_REF ?? '5ea731a67b4ad40575cbf0e5893f665c8d02ea8c';
+// Mission 009 aion-core tip (ExternalSideEffect + CRM catalog). Re-pin after core lands.
+const CORE_REF = process.env.AION_CORE_REF ?? '0c58a7c9cd307a59873d2544ca591982a4f75d4f';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorDir = resolve(root, 'vendor', 'aion-core');

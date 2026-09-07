@@ -26,6 +26,7 @@ export { withTransaction } from './db/transaction.js';
 
 // ── Durable Core-port adapters ──────────────────────────────────────────────
 export { PostgresMissionRepository } from './repositories/postgres-mission-repository.js';
+export { PostgresWorkflowRepository } from './repositories/postgres-workflow-repository.js';
 export {
   PostgresRunRepository,
   type VersionedRun,
@@ -36,12 +37,18 @@ export { PostgresTelemetrySink } from './repositories/postgres-telemetry-sink.js
 
 // ── aion-data-local repositories (no Core port) ─────────────────────────────
 export { PostgresActorRepository } from './repositories/postgres-actor-repository.js';
+export { PostgresExecutionRepository } from './repositories/postgres-execution-repository.js';
+export { PostgresServiceRepository } from './repositories/postgres-service-repository.js';
 export { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
 export {
   type OutcomeRecord,
   type CreateOutcomeInput,
   type UpdateOutcomeInput,
 } from './outcomes/outcome.js';
+export { PostgresEconomicsRepository } from './repositories/postgres-economics-repository.js';
+export { PostgresEvaluationRepository } from './repositories/postgres-evaluation-repository.js';
+export { PostgresAutonomyGrantRepository } from './repositories/postgres-autonomy-grant-repository.js';
+export { PostgresExternalSideEffectRepository } from './repositories/postgres-external-side-effect-repository.js';
 
 // ── Migrations ──────────────────────────────────────────────────────────────
 export {
@@ -54,16 +61,34 @@ export {
 
 // ── Mappers (persistence boundary; validated row ⇄ contract) ────────────────
 export { rowToMission, missionToColumns } from './mappers/mission-mapper.js';
+export { rowToWorkflow, workflowToColumns } from './mappers/workflow-mapper.js';
 export { rowToRun, runToColumns } from './mappers/run-mapper.js';
 export { rowToApprovalRequest, approvalToColumns } from './mappers/approval-mapper.js';
 export { rowToEvent, eventToColumns } from './mappers/event-mapper.js';
 export { rowToTelemetryRecord, telemetryToColumns } from './mappers/telemetry-mapper.js';
 export { rowToActor, actorToColumns } from './mappers/actor-mapper.js';
 export {
+  rowToExecution,
+  executionToColumns,
+} from './mappers/execution-mapper.js';
+export { rowToService, serviceToColumns } from './mappers/service-mapper.js';
+export {
   rowToOutcomeRecord,
   outcomeToColumns,
   toOutcomeReference,
 } from './mappers/outcome-mapper.js';
+export {
+  rowToEvaluation,
+  evaluationToColumns,
+} from './mappers/evaluation-mapper.js';
+export {
+  rowToAutonomyGrant,
+  autonomyGrantToColumns,
+} from './mappers/autonomy-grant-mapper.js';
+export {
+  rowToExternalSideEffect,
+  externalSideEffectToColumns,
+} from './mappers/external-side-effect-mapper.js';
 
 // ── Errors ──────────────────────────────────────────────────────────────────
 export {

@@ -6,39 +6,65 @@ import type { Queryable } from './db/client.js';
 import { createPool } from './db/client.js';
 import { withTransaction } from './db/transaction.js';
 import { PostgresMissionRepository } from './repositories/postgres-mission-repository.js';
+import { PostgresWorkflowRepository } from './repositories/postgres-workflow-repository.js';
 import { PostgresRunRepository } from './repositories/postgres-run-repository.js';
 import { PostgresApprovalStore } from './repositories/postgres-approval-store.js';
 import { PostgresEventSink } from './repositories/postgres-event-sink.js';
 import { PostgresTelemetrySink } from './repositories/postgres-telemetry-sink.js';
 import { PostgresActorRepository } from './repositories/postgres-actor-repository.js';
+import { PostgresExecutionRepository } from './repositories/postgres-execution-repository.js';
+import { PostgresServiceRepository } from './repositories/postgres-service-repository.js';
 import { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
+import { PostgresEconomicsRepository } from './repositories/postgres-economics-repository.js';
+import { PostgresEvaluationRepository } from './repositories/postgres-evaluation-repository.js';
+import { PostgresAutonomyGrantRepository } from './repositories/postgres-autonomy-grant-repository.js';
+import { PostgresExternalSideEffectRepository } from './repositories/postgres-external-side-effect-repository.js';
 
 /**
  * The set of durable repositories/adapters, bound to a single {@link Queryable}
- * (the pool, or one transaction client). The first five satisfy AION Core's
- * persistence ports exactly; `actors` and `outcomes` are aion-data-local
- * repositories (Core defines no port for them).
+ * (the pool, or one transaction client). The first ports satisfy AION Core's
+ * persistence contracts exactly; `actors`, `executions`, `services`,
+ * `outcomes`, and `economics` are aion-data-local repositories (Core defines no
+ * port for them except workflows, which Mission 004 promotes to a Core port).
  */
 export interface DataRepositories {
   missions: PostgresMissionRepository;
+  workflows: PostgresWorkflowRepository;
   runs: PostgresRunRepository;
   approvals: PostgresApprovalStore;
   events: PostgresEventSink;
   telemetry: PostgresTelemetrySink;
   actors: PostgresActorRepository;
+  executions: PostgresExecutionRepository;
+  services: PostgresServiceRepository;
   outcomes: PostgresOutcomeRepository;
+  /** Mission 005 — SQL-derived economics rollups (no second ledger). */
+  economics: PostgresEconomicsRepository;
+  /** Mission 007 — durable evaluations + scorecard aggregation. */
+  evaluations: PostgresEvaluationRepository;
+  /** Mission 008 — scoped earned AutonomyGrant store. */
+  autonomyGrants: PostgresAutonomyGrantRepository;
+  /** Mission 009 — idempotent external CRM mutation ledger. */
+  externalSideEffects: PostgresExternalSideEffectRepository;
 }
 
 /** Builds the repository set over any query surface (pool or tx client). */
 export function buildRepositories(db: Queryable): DataRepositories {
   return {
     missions: new PostgresMissionRepository(db),
+    workflows: new PostgresWorkflowRepository(db),
     runs: new PostgresRunRepository(db),
     approvals: new PostgresApprovalStore(db),
     events: new PostgresEventSink(db),
     telemetry: new PostgresTelemetrySink(db),
     actors: new PostgresActorRepository(db),
+    executions: new PostgresExecutionRepository(db),
+    services: new PostgresServiceRepository(db),
     outcomes: new PostgresOutcomeRepository(db),
+    economics: new PostgresEconomicsRepository(db),
+    evaluations: new PostgresEvaluationRepository(db),
+    autonomyGrants: new PostgresAutonomyGrantRepository(db),
+    externalSideEffects: new PostgresExternalSideEffectRepository(db),
   };
 }
 
