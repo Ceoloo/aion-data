@@ -48,6 +48,7 @@ export {
 export { PostgresEconomicsRepository } from './repositories/postgres-economics-repository.js';
 export { PostgresEvaluationRepository } from './repositories/postgres-evaluation-repository.js';
 export { PostgresAutonomyGrantRepository } from './repositories/postgres-autonomy-grant-repository.js';
+export { PostgresExternalSideEffectRepository } from './repositories/postgres-external-side-effect-repository.js';
 
 // ── Migrations ──────────────────────────────────────────────────────────────
 export {
@@ -84,6 +85,10 @@ export {
   rowToAutonomyGrant,
   autonomyGrantToColumns,
 } from './mappers/autonomy-grant-mapper.js';
+export {
+  rowToExternalSideEffect,
+  externalSideEffectToColumns,
+} from './mappers/external-side-effect-mapper.js';
 
 // ── Errors ──────────────────────────────────────────────────────────────────
 export {

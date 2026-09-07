@@ -18,6 +18,7 @@ import { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
 import { PostgresEconomicsRepository } from './repositories/postgres-economics-repository.js';
 import { PostgresEvaluationRepository } from './repositories/postgres-evaluation-repository.js';
 import { PostgresAutonomyGrantRepository } from './repositories/postgres-autonomy-grant-repository.js';
+import { PostgresExternalSideEffectRepository } from './repositories/postgres-external-side-effect-repository.js';
 
 /**
  * The set of durable repositories/adapters, bound to a single {@link Queryable}
@@ -43,6 +44,8 @@ export interface DataRepositories {
   evaluations: PostgresEvaluationRepository;
   /** Mission 008 — scoped earned AutonomyGrant store. */
   autonomyGrants: PostgresAutonomyGrantRepository;
+  /** Mission 009 — idempotent external CRM mutation ledger. */
+  externalSideEffects: PostgresExternalSideEffectRepository;
 }
 
 /** Builds the repository set over any query surface (pool or tx client). */
@@ -61,6 +64,7 @@ export function buildRepositories(db: Queryable): DataRepositories {
     economics: new PostgresEconomicsRepository(db),
     evaluations: new PostgresEvaluationRepository(db),
     autonomyGrants: new PostgresAutonomyGrantRepository(db),
+    externalSideEffects: new PostgresExternalSideEffectRepository(db),
   };
 }
 

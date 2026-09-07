@@ -1,6 +1,7 @@
 import {
   buildMission001Catalog,
   buildMission002Catalog,
+  buildMission009Catalog,
   type ServiceDefinition,
   type ServiceId,
   type ServiceKey,
@@ -133,6 +134,22 @@ export class PostgresServiceRepository {
    */
   async seedMission002(): Promise<{ inserted: number; total: number }> {
     const catalog = buildMission002Catalog();
+    let inserted = 0;
+    for (const svc of catalog) {
+      const existing = await this.getByKey(svc.serviceKey);
+      if (!existing) {
+        await this.save(svc);
+        inserted += 1;
+      }
+    }
+    return { inserted, total: catalog.length };
+  }
+
+  /**
+   * Idempotent Mission 009 seed: CRM / GHL client-plane catalog keys.
+   */
+  async seedMission009(): Promise<{ inserted: number; total: number }> {
+    const catalog = buildMission009Catalog();
     let inserted = 0;
     for (const svc of catalog) {
       const existing = await this.getByKey(svc.serviceKey);
