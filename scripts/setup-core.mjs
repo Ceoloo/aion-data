@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 
 const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-core';
 // Mission 009 aion-core tip (ExternalSideEffect + CRM catalog). Re-pin after core lands.
-const CORE_REF = process.env.AION_CORE_REF ?? '9b280c5cdee168e9c8a695c6e072b78726e18270';
+const CORE_REF = process.env.AION_CORE_REF ?? '77ad55420dfcd93819b17054c1a915f0f147aafd';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorDir = resolve(root, 'vendor', 'aion-core');
