@@ -24,8 +24,11 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-core';
-// Mission 009 aion-core tip (ExternalSideEffect + CRM catalog). Re-pin after core lands.
-const CORE_REF = process.env.AION_CORE_REF ?? '6fa6527ea1c468c0364e3562200afd6db4198c2b';
+// aion-core tip after the GHL Phase A CRM catalog expansion (buildMission009Catalog
+// grows 10 -> 15: adds contact.search, opportunity.search, pipeline.read,
+// conversation.read, appointment.read). Kept in lockstep with aion-runtime's
+// AION_CORE_REF. Re-pin after core lands on main.
+const CORE_REF = process.env.AION_CORE_REF ?? '791b40c81f39edf93a87e639d90941aeaabaa903';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorDir = resolve(root, 'vendor', 'aion-core');
