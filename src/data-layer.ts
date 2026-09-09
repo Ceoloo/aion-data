@@ -19,6 +19,7 @@ import { PostgresEconomicsRepository } from './repositories/postgres-economics-r
 import { PostgresEvaluationRepository } from './repositories/postgres-evaluation-repository.js';
 import { PostgresAutonomyGrantRepository } from './repositories/postgres-autonomy-grant-repository.js';
 import { PostgresExternalSideEffectRepository } from './repositories/postgres-external-side-effect-repository.js';
+import { PostgresRevenueSessionRepository } from './repositories/postgres-revenue-session-repository.js';
 
 /**
  * The set of durable repositories/adapters, bound to a single {@link Queryable}
@@ -46,6 +47,8 @@ export interface DataRepositories {
   autonomyGrants: PostgresAutonomyGrantRepository;
   /** Mission 009 — idempotent external CRM mutation ledger. */
   externalSideEffects: PostgresExternalSideEffectRepository;
+  /** Revenue Copilot — opaque versioned session checkpoints. */
+  revenueSessions: PostgresRevenueSessionRepository;
 }
 
 /** Builds the repository set over any query surface (pool or tx client). */
@@ -65,6 +68,7 @@ export function buildRepositories(db: Queryable): DataRepositories {
     evaluations: new PostgresEvaluationRepository(db),
     autonomyGrants: new PostgresAutonomyGrantRepository(db),
     externalSideEffects: new PostgresExternalSideEffectRepository(db),
+    revenueSessions: new PostgresRevenueSessionRepository(db),
   };
 }
 
