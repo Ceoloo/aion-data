@@ -39,6 +39,7 @@ export { PostgresTelemetrySink } from './repositories/postgres-telemetry-sink.js
 export { PostgresActorRepository } from './repositories/postgres-actor-repository.js';
 export { PostgresExecutionRepository } from './repositories/postgres-execution-repository.js';
 export { PostgresServiceRepository } from './repositories/postgres-service-repository.js';
+export { PostgresRevenueSessionRepository, type RevenueSessionRow } from './repositories/postgres-revenue-session-repository.js';
 export { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
 export {
   type OutcomeRecord,

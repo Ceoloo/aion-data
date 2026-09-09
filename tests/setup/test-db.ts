@@ -30,6 +30,7 @@ export const ALL_TABLES = [
   'evaluation_results',
   'executions',
   'services',
+  'revenue_sessions',
   'outcomes',
   'approvals',
   'telemetry_records',

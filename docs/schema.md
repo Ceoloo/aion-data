@@ -254,6 +254,22 @@ Indexes: `mission_id`, `run_id`, `status`. The extension columns (type/value/
 currency/measured_at) are owned by aion-data; `toOutcomeReference()` always
 projects an outcome down to a Core-valid `OutcomeReference`.
 
+## `revenue_sessions`
+
+Opaque, versioned product checkpoints for Revenue Copilot (migration
+`0009_revenue_sessions.sql`). Product code owns the payload shape; Data owns
+persistence. A row is either an active checkpoint **or** a finalized record
+(CHECK enforces exclusivity). `revision` provides stale-writer protection on
+`UPDATE`. Internal single-tenant storage — never grant anonymous / browser roles.
+
+| Column | Type | Notes |
+|---|---|---|
+| `session_id` | text PK | Product session id |
+| `checkpoint` | jsonb | Active opaque checkpoint (null when finalized) |
+| `final_record` | jsonb | Finalized opaque record (null while active) |
+| `revision` | integer | Optimistic concurrency |
+| `updated_at` | timestamptz | |
+
 ## `schema_migrations`
 
 Internal migration ledger: `version` (PK), `name`, `checksum` (sha256 of the SQL),
@@ -275,6 +291,7 @@ have a reference. Nothing here should ever hold a secret; secrets live in the
 | `events` | CONFIDENTIAL | Payloads describe what happened; keep sensitive data by-reference. |
 | `telemetry_records` | INTERNAL | Operational facts; context is referenced, not copied. |
 | `outcomes` | CONFIDENTIAL | May carry monetary value / external references. |
+| `revenue_sessions` | CONFIDENTIAL | Opaque product checkpoints / finals; may embed PII by reference. |
 
 Payloads and metadata should carry **references**, not sensitive raw data
 (aion-docs/observability-standards.md). No column is a home for secrets.
