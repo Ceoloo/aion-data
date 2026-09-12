@@ -132,7 +132,9 @@ fields (`value`, `currency`, `outcome_type`, `measured_at`), and every record
 projects back to a Core-valid `OutcomeReference` via `toOutcomeReference()`.
 Lessons and recommendations are **not** built.
 
-## Durability test (the key proof)
+## Durability tests (the key proofs)
+
+### Run + approval resume
 
 `tests/integration/durability-resume.test.ts`:
 
@@ -150,6 +152,23 @@ Lessons and recommendations are **not** built.
    execution.completed`), telemetry persisted, and trace continuity (all events
    share the run's `correlation_id`) across the restart boundary. Lineage
    Mission → Run → Approval → Events → Telemetry → Outcome is queried.
+
+### Execution Object vertical slice
+
+`tests/integration/execution-object-durability.test.ts`:
+
+1. Submit gated work with a minted Core `executionId` and persist the canonical
+   Execution Object (`aion_execution`) via `createExecutionObject` (same shape
+   Runtime's gateway writes).
+2. Discard the process and rebuild Core + Data over the same Postgres.
+3. Reload the **same** Execution Object by id — status remains
+   `awaiting_approval`.
+4. Resume → Execution Object transitions to `succeeded` with the **same**
+   `executionId`, cost recorded, canonical events continuous, and a durable
+   Outcome linked/exposed on the object (`outcomeId` + Core
+   `OutcomeReference`).
+5. A second case proves a failed Execution Object + `execution.failed` event
+   survive a rebuild.
 
 **Result: passes.** Durability changes behavior from "works in memory" to
 "survives process restart" without changing Core's architectural role.
