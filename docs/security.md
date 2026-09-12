@@ -76,7 +76,12 @@ a guard against ever pointing destructive tooling at real data.
 
 ## Row-Level Security — deferred, with reason
 
-Phase 2 **does not enable RLS**, deliberately:
+Phase 2 **does not enable RLS by default**, deliberately:
+
+> Scaffold migration `0010_tenant_rls.sql` (ADR-005) defines tenant
+> policies but does **not** FORCE them until Runtime sets
+> `aion.tenant_id` on request-scoped connections.
+
 
 - There is **no public/anonymous client** and **no validated multi-tenant
   requirement** in Phase 2. AION Data is reached only by the control plane via a
