@@ -28,6 +28,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:contracts": "vitest run --config vitest.contracts.config.ts",
     "test:watch": "vitest",
     "migrate": "tsx scripts/migrate.ts",
     "reset-test-db": "tsx scripts/reset-test-db.ts",

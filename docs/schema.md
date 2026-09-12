@@ -46,7 +46,9 @@ missing tables.
   DB-audit times default to `now()`.
 - **Enumerated domains are CHECK constraints** mirroring Core's zod enums, so the
   database rejects values Core would never produce. These are integrity guards,
-  not business logic — Core remains the policy authority.
+  not business logic — Core remains the policy authority. Drift between Core
+  enum exports and these CHECKs is guarded by `npm run test:contracts`
+  (`tests/contracts/enum-drift.test.ts`).
 - **Relational vs. JSONB**: identity, ownership, status, risk, timestamps and
   foreign keys are columns; flexible/externally-versioned data (metadata,
   payloads, the command snapshot, declared permission lists, opaque product
