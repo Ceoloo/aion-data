@@ -11,15 +11,31 @@ import type { EvaluationResultRow } from '../types/database.js';
 import { MappingError } from '../errors/index.js';
 import { metadataObject, numberOrUndefined, toIso } from './_shared.js';
 
+/**
+ * Fail closed on corrupt policy_events jsonb. Soft-coercing bad elements to
+ * `{ kind: 'unknown' }` hid contract drift; MappingError surfaces it at the
+ * persistence boundary instead.
+ */
 function policyEventsArray(v: unknown): PolicyEventRecord[] {
-  if (!Array.isArray(v)) return [];
-  return v.map((item) => {
+  if (v == null) return [];
+  if (!Array.isArray(v)) {
+    throw new MappingError('persisted evaluation policy_events must be a jsonb array', {
+      policyEventsType: typeof v,
+    });
+  }
+  return v.map((item, index) => {
     if (!item || typeof item !== 'object' || Array.isArray(item)) {
-      return { kind: 'unknown' };
+      throw new MappingError('persisted evaluation policy_events entry is not an object', {
+        index,
+      });
     }
     const rec = item as Record<string, unknown>;
-    const kind = typeof rec.kind === 'string' ? rec.kind : 'unknown';
-    const out: PolicyEventRecord = { kind };
+    if (typeof rec.kind !== 'string' || rec.kind.length < 1) {
+      throw new MappingError('persisted evaluation policy_events entry missing kind', {
+        index,
+      });
+    }
+    const out: PolicyEventRecord = { kind: rec.kind };
     if (
       rec.decision === 'ALLOW' ||
       rec.decision === 'DENY' ||
