@@ -7,7 +7,9 @@ export interface RevenueSessionRow {
   revision: number;
 }
 
-/** Payloads are opaque to Data; callers validate their versioned product shape. */
+/** Payloads are opaque to Data; callers validate their versioned product shape.
+ * Data owns durability + revision only. No tenant_id yet (documented limitation).
+ * Products should reach this via Runtime HTTP, not direct imports. */
 export class PostgresRevenueSessionRepository {
   constructor(private readonly db: Queryable) {}
 

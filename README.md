@@ -20,11 +20,12 @@ AION CORE  ──ports/contracts──▶  AION DATA  ──▶  PostgreSQL
 ## What AION Data owns
 
 - the **canonical relational schema** for persisted control-plane state;
-- **migrations** (versioned, reviewable, deterministic);
+- **migrations** (versioned, reviewable, deterministic; currently `0001`–`0009`);
 - **durable repositories/adapters** implementing Core's ports;
 - **event persistence** (append-only facts);
 - **telemetry persistence** (the observability spine);
 - **outcome records** (the seed of the future learning loop);
+- **durability + revision** for opaque product checkpoints (`revenue_sessions`);
 - **data governance**: constraints, indexes, lineage, database access patterns.
 
 See [aion-docs/repositories/aion-data.md](https://github.com/Ceoloo/aion-docs/blob/main/repositories/aion-data.md).
@@ -36,8 +37,11 @@ See [aion-docs/repositories/aion-data.md](https://github.com/Ceoloo/aion-docs/bl
   behavior lives in SQL, triggers, or stored procedures.
 - **infrastructure / provisioning / environments** — that is `aion-infra`
   (Phase 3). The `docker-compose.yml` here is developer convenience only.
-- **product/business entities** — no CRM, sales, content, or portal schema. Only
-  what the current Core contracts require is modelled.
+- **product/business entity schemas** — no CRM, sales, content, or portal tables.
+  Product code (e.g. Revenue Copilot) owns the **opaque payload shape** inside
+  `revenue_sessions`; Data only owns durability, exclusivity, and revision.
+- **direct product imports** — products consume this layer via **Runtime HTTP**,
+  not by importing `@aion/data` into product packages.
 
 ## Relationship to AION Core
 
@@ -52,9 +56,10 @@ AION Data provides the durable implementations:
 | `EventSink` | `PostgresEventSink` |
 | `TelemetrySink` | `PostgresTelemetrySink` |
 
-Two repositories are **local to aion-data** (Core defines no port for them):
-`PostgresActorRepository` (canonical, attributable identities) and
-`PostgresOutcomeRepository` (durable business outcomes).
+Additional repositories are **local to aion-data** (or promoted after Core
+gained a matching port): actors, executions, services, workflows, outcomes,
+economics, evaluations, autonomy grants, external side effects, and revenue
+sessions. Full inventory: [docs/schema.md](docs/schema.md).
 
 Core is consumed as the **real** package (`@aion/core`), not a copy — vendored
 and built by `scripts/setup-core.mjs` and linked via a `file:` dependency, so the
@@ -63,10 +68,16 @@ canonical contracts are never forked. See
 
 ## Canonical data model
 
-Seven canonical tables, bounded to what Phase 1 Core requires:
+Migrations `0001`–`0009` define the current durable inventory (plus internal
+`schema_migrations`):
 
-`actors` · `missions` · `runs` · `approvals` · `events` · `telemetry_records` ·
-`outcomes` (plus internal `schema_migrations`).
+| Area | Tables |
+|---|---|
+| Core control-plane | `actors`, `missions`, `runs`, `approvals`, `events`, `telemetry_records`, `outcomes` |
+| Execution platform | `executions` |
+| Catalog / plans | `services`, `workflows` |
+| Evidence / governance | `evaluation_results`, `autonomy_grants`, `external_side_effects` |
+| Product checkpoints | `revenue_sessions` (opaque jsonb; no `tenant_id` yet — known limitation) |
 
 Full column-by-column reference: [docs/schema.md](docs/schema.md).
 
@@ -74,6 +85,7 @@ Lineage is traceable end-to-end:
 
 ```
 Mission → Run → Command/Request → Approval → Events → Telemetry → Outcome
+                ↘ Execution (optional tenant scope)
 ```
 
 ## Local development
@@ -138,10 +150,13 @@ See [docs/security.md](docs/security.md).
 
 ## Phase 2 scope & status
 
-Phase 2 is complete: the Core lifecycle operates against durable Postgres
-adapters and resumes the same run after a restart. Learning tables (lessons,
-recommendations), analytics, and any product schema are **out of scope** and not
-built. Full scope, deferrals, and exit criteria: [docs/phase-2.md](docs/phase-2.md).
+Phase 2 exit criteria are met: the Core lifecycle operates against durable
+Postgres adapters and resumes the same run after a restart. Additive migrations
+`0002`–`0009` extend the foundation (executions, services, workflows, evals,
+grants, side effects, revenue sessions) without changing that ownership model.
+Learning tables (lessons, recommendations), analytics warehouses, and normalized
+product schemas remain **out of scope**. Full scope, deferrals, and exit
+criteria: [docs/phase-2.md](docs/phase-2.md).
 
 ## Documentation
 

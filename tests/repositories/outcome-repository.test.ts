@@ -72,6 +72,37 @@ describe('PostgresOutcomeRepository', () => {
     expect((await dl.outcomes.listByMission(mission.missionId)).length).toBe(2);
   });
 
+  it('create → update → listByRun reflects resolved business outcome on the same run', async () => {
+    const { run, mission } = await seedRun();
+    const pending = await dl.outcomes.create({
+      runId: run.runId,
+      missionId: mission.missionId,
+      status: 'pending',
+    });
+
+    const realized = await dl.outcomes.update(pending.outcomeId, {
+      status: 'realized',
+      outcomeType: 'revenue',
+      value: 1200,
+      currency: 'USD',
+      measuredAt: '2026-09-01T12:00:00.000Z',
+      externalReference: 'inv_p0_42',
+    });
+
+    const listed = await dl.outcomes.listByRun(run.runId);
+    expect(listed).toHaveLength(1);
+    expect(listed[0]).toMatchObject({
+      outcomeId: realized.outcomeId,
+      runId: run.runId,
+      status: 'realized',
+      outcomeType: 'revenue',
+      value: 1200,
+      currency: 'USD',
+      externalReference: 'inv_p0_42',
+    });
+    expect(listed[0]!.updatedAt >= pending.updatedAt).toBe(true);
+  });
+
   it('updates an outcome as reality resolves', async () => {
     const { run, mission } = await seedRun();
     const outcome = await dl.outcomes.create({ runId: run.runId, missionId: mission.missionId });
