@@ -17,15 +17,22 @@ telemetry persist → outcomes recordable → process restart → same run resum
 
 ## What was implemented
 
-- **PostgreSQL canonical schema** — 7 tables (`actors`, `missions`, `runs`,
-  `approvals`, `events`, `telemetry_records`, `outcomes`) plus a
-  `schema_migrations` ledger, with enum/coherence CHECK constraints, foreign
-  keys, and access-pattern indexes. See [schema.md](schema.md).
+- **PostgreSQL canonical schema** — at Phase 2 exit: 7 tables (`actors`,
+  `missions`, `runs`, `approvals`, `events`, `telemetry_records`, `outcomes`)
+  plus a `schema_migrations` ledger, with enum/coherence CHECK constraints,
+  foreign keys, and access-pattern indexes. **Additive migrations `0002`–`0009`
+  since then** extended the inventory with `executions`, `services`,
+  `workflows`, `evaluation_results`, `autonomy_grants`,
+  `external_side_effects`, and `revenue_sessions` (see [schema.md](schema.md)).
+  The layer is not incomplete for P0 revenue contracts; remaining gaps (e.g.
+  `revenue_sessions` without `tenant_id`) are documented limitations.
 - **Durable adapters for all five Core ports** — `PostgresMissionRepository`,
   `PostgresRunRepository`, `PostgresApprovalStore`, `PostgresEventSink`,
   `PostgresTelemetrySink` — each implementing the exact AION Core interface.
-- **Two aion-data-local repositories** — `PostgresActorRepository` and
-  `PostgresOutcomeRepository` (Core defines no port for either).
+- **aion-data-local repositories** — including `PostgresActorRepository`,
+  `PostgresOutcomeRepository`, executions, services, economics, evaluations,
+  autonomy grants, external side effects, and revenue sessions (plus workflows
+  once Core gained a matching port).
 - **Mappers** translating validated row ⇄ Core contract, with boundary
   validation (a `MappingError` rather than an unchecked cast).
 - **Deterministic migration runner** (versioned `.sql`, checksum drift
@@ -176,10 +183,12 @@ driver), `zod` (boundary validation, same major as Core). Dev: `typescript`,
 
 Lessons/recommendations/learning workers; analytics/BI/warehouse/lakehouse;
 vectors; Kafka/Redis/Elasticsearch/streaming/CDC/ETL; ML feature stores;
-multi-tenant platform features and RLS; product/business schema (CRM, sales,
-content, portal); cloud/Terraform/Kubernetes/multi-region topology; speculative
-partitioning/sharding; telemetry retention automation. These belong to later
-phases or `aion-infra`.
+multi-tenant platform features and RLS; normalized product/business schema
+(CRM, sales, content, portal — opaque `revenue_sessions` jsonb is allowed);
+`tenant_id` on `revenue_sessions` (known limitation; needs explicit rollback /
+backfill plan before migration); cloud/Terraform/Kubernetes/multi-region
+topology; speculative partitioning/sharding; telemetry retention automation.
+These belong to later phases or `aion-infra`.
 
 ## Architecture issues discovered
 

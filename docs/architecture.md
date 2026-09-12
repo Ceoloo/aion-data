@@ -23,13 +23,20 @@ architectural job: let the Phase 1 AION Core lifecycle run against a real databa
 │    Telemetry}…  ← satisfy the Core ports exactly             │
 │  • Mappers: validated row ⇄ Core contract                    │
 │  • Migrations, constraints, indexes, transactions            │
-│  • Local repos: Actor, Outcome (no Core port exists)         │
+│  • Local repos: Actor, Outcome, Execution, Service, Economics, │
+│    Evaluation, AutonomyGrant, ExternalSideEffect,              │
+│    RevenueSession (+ Workflows once Core gained a port)        │
 └───────────────▲──────────────────────────────────────────────┘
                 │ SQL
 ┌───────────────┴──────────────────────────────────────────────┐
 │ PostgreSQL                                                    │
 └──────────────────────────────────────────────────────────────┘
 ```
+
+Products consume durable state via **Runtime HTTP**, not by importing
+`@aion/data` directly. For `revenue_sessions`, products own the opaque payload
+shape; Data owns durability and revision only (no `tenant_id` yet — see
+[schema.md](schema.md)).
 
 Allowed dependency direction (aion-docs/repositories/dependency-rules.md):
 `aion-core → aion-data`. Data **never** depends on Core for behavior; it depends
