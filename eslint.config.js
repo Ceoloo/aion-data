@@ -5,8 +5,15 @@ import tsparser from '@typescript-eslint/parser';
 
 export default [
   {
-    // vitest.config.ts is a root config file outside the tsconfig project.
-    ignores: ['dist/**', 'node_modules/**', 'coverage/**', 'vendor/**', 'vitest.config.ts'],
+    // Vitest root configs sit outside the tsconfig project (include: src/tests/scripts).
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'coverage/**',
+      'vendor/**',
+      'vitest.config.ts',
+      'vitest.contracts.config.ts',
+    ],
   },
   js.configs.recommended,
   {
