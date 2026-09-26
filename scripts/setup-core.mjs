@@ -24,8 +24,10 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-core';
-// Mission 009 aion-core tip (ExternalSideEffect + CRM catalog). Re-pin after core lands.
-const CORE_REF = process.env.AION_CORE_REF ?? '0c58a7c9cd307a59873d2544ca591982a4f75d4f';
+// Platform-aligned aion-core pin (AION system contract lock). Must match the
+// CORE_REF in aion-runtime/scripts/setup-deps.mjs and the CORE_SHA in
+// aion-products/scripts/setup-core.sh — one contract surface across the system.
+const CORE_REF = process.env.AION_CORE_REF ?? '52ecf40b860ec9e32fe62c3fc8a8252c5ad17157';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorDir = resolve(root, 'vendor', 'aion-core');
@@ -63,6 +65,8 @@ function main() {
   }
 
   run(`git clone --quiet ${CORE_REPO} "${vendorDir}"`, root);
+  // Pin may not be on the default branch tip — fetch the SHA explicitly.
+  run(`git fetch --quiet origin ${CORE_REF}`, vendorDir);
   run(`git checkout --quiet ${CORE_REF}`, vendorDir);
   run('npm install --no-audit --no-fund --loglevel=error', vendorDir);
   run('npm run build', vendorDir);

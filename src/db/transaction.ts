@@ -20,7 +20,7 @@ import { PersistenceError } from '../errors/index.js';
  * unit-of-work handle) is documented rather than hidden.
  */
 export async function withTransaction<T>(
-  pool: pg.Pool,
+  pool: Pick<pg.Pool, 'connect'>,
   fn: (tx: Queryable) => Promise<T>,
 ): Promise<T> {
   let client: pg.PoolClient;

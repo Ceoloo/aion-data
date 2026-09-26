@@ -85,6 +85,90 @@ async function ensureMigrationsTable(db: pg.Pool): Promise<void> {
 }
 
 /**
+ * Known divergent migration lineages that were deployed before being
+ * reconciled onto `main`. Each entry maps a `(version, name)` row recorded by
+ * the divergent lineage to the canonical version that now carries the SAME
+ * schema effect.
+ *
+ * `execution-object` lineage (aion-data cursor/execution-object-agent-identity,
+ * vendored by aion-runtime ≤ the platform-alignment pin, plus Runtime's
+ * `vendor-revenue-sessions` overlay):
+ *   0009_implementation_cases        → canonical 0011
+ *   0010_ie002_activation_statuses   → canonical 0012
+ *   0011_revenue_sessions (overlay)  → canonical 0009
+ *
+ * Canonical 0010 (tenant RLS) was never applied on that lineage; it is left
+ * pending so the runner applies it normally.
+ */
+const LEGACY_LINEAGE_REMAP: ReadonlyArray<{
+  legacyVersion: string;
+  name: string;
+  canonicalVersion: string;
+}> = [
+  { legacyVersion: '0009', name: 'implementation_cases', canonicalVersion: '0011' },
+  { legacyVersion: '0010', name: 'ie002_activation_statuses', canonicalVersion: '0012' },
+  { legacyVersion: '0011', name: 'revenue_sessions', canonicalVersion: '0009' },
+];
+
+/**
+ * Rewrites `schema_migrations` rows recorded by a known divergent lineage to
+ * their canonical versions, in one transaction, BEFORE checksums are verified.
+ *
+ * This never runs DDL: it only relabels history for schema effects that are
+ * already present (matched by exact `(version, name)` of the legacy row). A
+ * database on the canonical lineage has no matching rows and is untouched.
+ * Returns the remaps performed (empty when nothing matched).
+ */
+export async function reconcileLegacyMigrationLineage(
+  pool: pg.Pool,
+  migrations: Migration[],
+): Promise<Array<{ from: string; to: string; name: string }>> {
+  const { rows } = await pool.query<{ version: string; name: string }>(
+    'SELECT version, name FROM schema_migrations',
+  );
+  const recorded = new Set(rows.map((r) => `${r.version}:${r.name}`));
+  const byVersion = new Map(migrations.map((m) => [m.version, m]));
+
+  const remaps = LEGACY_LINEAGE_REMAP.filter((r) => {
+    const target = byVersion.get(r.canonicalVersion);
+    return (
+      recorded.has(`${r.legacyVersion}:${r.name}`) &&
+      target !== undefined &&
+      target.name === r.name
+    );
+  });
+  if (remaps.length === 0) return [];
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    for (const r of remaps) {
+      await client.query('DELETE FROM schema_migrations WHERE version = $1 AND name = $2', [
+        r.legacyVersion,
+        r.name,
+      ]);
+    }
+    for (const r of remaps) {
+      const target = byVersion.get(r.canonicalVersion) as Migration;
+      await client.query(
+        `INSERT INTO schema_migrations (version, name, checksum) VALUES ($1, $2, $3)
+         ON CONFLICT (version) DO NOTHING`,
+        [target.version, target.name, target.checksum],
+      );
+    }
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => undefined);
+    throw new MigrationError('legacy migration lineage reconciliation failed', {
+      cause: err instanceof Error ? err.message : String(err),
+    });
+  } finally {
+    client.release();
+  }
+  return remaps.map((r) => ({ from: r.legacyVersion, to: r.canonicalVersion, name: r.name }));
+}
+
+/**
  * Applies all pending migrations in order. Idempotent: already-applied
  * migrations are verified (checksum) and skipped. Returns the per-migration
  * outcome so callers/tests can assert what ran.
@@ -95,6 +179,7 @@ export async function runMigrations(
 ): Promise<MigrationResult[]> {
   await ensureMigrationsTable(pool);
   const migrations = readMigrations(dir);
+  await reconcileLegacyMigrationLineage(pool, migrations);
 
   const appliedRows = await pool.query<{ version: string; checksum: string }>(
     'SELECT version, checksum FROM schema_migrations',

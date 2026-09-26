@@ -23,6 +23,12 @@ export {
 export { type DataLayerConfig, configFromEnv } from './db/config.js';
 export { createPool, type Queryable } from './db/client.js';
 export { withTransaction } from './db/transaction.js';
+export {
+  TenantScopedPool,
+  applyTenant,
+  TENANT_SETTING,
+  type TenantContext,
+} from './db/tenant-scope.js';
 
 // ── Durable Core-port adapters ──────────────────────────────────────────────
 export { PostgresMissionRepository } from './repositories/postgres-mission-repository.js';
@@ -50,10 +56,12 @@ export { PostgresEconomicsRepository } from './repositories/postgres-economics-r
 export { PostgresEvaluationRepository } from './repositories/postgres-evaluation-repository.js';
 export { PostgresAutonomyGrantRepository } from './repositories/postgres-autonomy-grant-repository.js';
 export { PostgresExternalSideEffectRepository } from './repositories/postgres-external-side-effect-repository.js';
+export { PostgresImplementationCaseRepository } from './repositories/postgres-implementation-case-repository.js';
 
 // ── Migrations ──────────────────────────────────────────────────────────────
 export {
   runMigrations,
+  reconcileLegacyMigrationLineage,
   readMigrations,
   defaultMigrationsDir,
   type Migration,
@@ -90,6 +98,10 @@ export {
   rowToExternalSideEffect,
   externalSideEffectToColumns,
 } from './mappers/external-side-effect-mapper.js';
+export {
+  rowToImplementationCase,
+  implementationCaseToColumns,
+} from './mappers/implementation-case-mapper.js';
 
 // ── Errors ──────────────────────────────────────────────────────────────────
 export {

@@ -5,6 +5,8 @@ import {
   AUTONOMY_ENVIRONMENTS,
   AUTONOMY_GRANT_STATUSES,
   AUTONOMY_LEVELS,
+  COMMERCIAL_STATUSES,
+  DELIVERY_STATUSES,
   EXECUTION_OBJECT_STATUSES,
   EXTERNAL_SIDE_EFFECT_STATUSES,
   MISSION_STATUSES,
@@ -16,7 +18,7 @@ import {
 } from '@aion/core';
 
 /**
- * SQL CHECK members mirrored from migrations 0001–0008.
+ * SQL CHECK members mirrored from migrations 0001–0013.
  *
  * If Core adds/removes an enum member, this test fails until the matching
  * migration (and docs/schema.md) is updated. Do not "fix" by editing only
@@ -52,10 +54,25 @@ const SQL_CHECK = {
     'cancelled',
   ],
   autonomyLevels: ['L0', 'L1', 'L2', 'L3', 'L4'],
-  serviceStatuses: ['active', 'deprecated'],
+  serviceStatuses: ['active', 'inactive', 'deprecated'],
   autonomyEnvironments: ['staging', 'production'],
   autonomyGrantStatuses: ['active', 'revoked', 'expired', 'superseded'],
   externalSideEffectStatuses: ['pending', 'succeeded', 'failed', 'replayed'],
+  commercialStatuses: ['prospect', 'signed', 'paid', 'on_hold', 'declined', 'churned'],
+  deliveryStatuses: [
+    'draft',
+    'intake_complete',
+    'recommendation_ready',
+    'blueprint_draft',
+    'blueprint_approved',
+    'provisioning',
+    'activation_ready',
+    'active',
+    'accepted',
+    'live',
+    'on_hold',
+    'declined',
+  ],
 } as const;
 
 function sorted(values: readonly string[]): string[] {
@@ -118,5 +135,10 @@ describe('Core enum ↔ SQL CHECK drift', () => {
     expect(sorted(EXTERNAL_SIDE_EFFECT_STATUSES)).toEqual(
       sorted(SQL_CHECK.externalSideEffectStatuses),
     );
+  });
+
+  it('implementation_cases.commercial_status / delivery_status', () => {
+    expect(sorted(COMMERCIAL_STATUSES)).toEqual(sorted(SQL_CHECK.commercialStatuses));
+    expect(sorted(DELIVERY_STATUSES)).toEqual(sorted(SQL_CHECK.deliveryStatuses));
   });
 });
