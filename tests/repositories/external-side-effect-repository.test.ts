@@ -70,8 +70,8 @@ describe('PostgresExternalSideEffectRepository', () => {
 
   it('seedMission009 inserts CRM catalog keys', async () => {
     const seed = await dl.services.seedMission009();
-    expect(seed.total).toBe(10);
-    expect(seed.inserted).toBe(10);
+    expect(seed.total).toBe(15);
+    expect(seed.inserted).toBe(15);
     const again = await dl.services.seedMission009();
     expect(again.inserted).toBe(0);
     const send = await dl.services.getByKey(

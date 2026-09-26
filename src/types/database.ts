@@ -295,3 +295,24 @@ export interface ExternalSideEffectRow {
   metadata: Record<string, unknown>;
   created_at: Date;
 }
+
+/** IE-001 — durable ImplementationCase row. */
+export interface ImplementationCaseRow {
+  case_id: string;
+  tenant_id: string;
+  client_ref: string;
+  client_name: string;
+  owner_id: string;
+  commercial_status: string;
+  delivery_status: string;
+  next_action: string | null;
+  blockers: unknown;
+  evidence_links: unknown;
+  intake: unknown;
+  recommendation: unknown;
+  blueprint: unknown;
+  provisioning: unknown;
+  created_at: Date;
+  updated_at: Date;
+  metadata: Record<string, unknown>;
+}

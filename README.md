@@ -20,7 +20,7 @@ AION CORE  ──ports/contracts──▶  AION DATA  ──▶  PostgreSQL
 ## What AION Data owns
 
 - the **canonical relational schema** for persisted control-plane state;
-- **migrations** (versioned, reviewable, deterministic; currently `0001`–`0009`);
+- **migrations** (versioned, reviewable, deterministic; currently `0001`–`0013`);
 - **durable repositories/adapters** implementing Core's ports;
 - **event persistence** (append-only facts);
 - **telemetry persistence** (the observability spine);
@@ -68,7 +68,7 @@ canonical contracts are never forked. See
 
 ## Canonical data model
 
-Migrations `0001`–`0009` define the current durable inventory (plus internal
+Migrations `0001`–`0013` define the current durable inventory (plus internal
 `schema_migrations`):
 
 | Area | Tables |
@@ -77,6 +77,7 @@ Migrations `0001`–`0009` define the current durable inventory (plus internal
 | Execution platform | `executions` |
 | Catalog / plans | `services`, `workflows` |
 | Evidence / governance | `evaluation_results`, `autonomy_grants`, `external_side_effects` |
+| Delivery (Implementation Engine) | `implementation_cases` |
 | Product checkpoints | `revenue_sessions` (opaque jsonb; no `tenant_id` yet — known limitation) |
 
 Full column-by-column reference: [docs/schema.md](docs/schema.md).

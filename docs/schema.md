@@ -19,6 +19,10 @@ Current inventory (plus internal `schema_migrations`):
 | `0007` | `autonomy_grants` |
 | `0008` | `external_side_effects` |
 | `0009` | `revenue_sessions` |
+| `0010` | tenant RLS policy scaffold |
+| `0011` | `implementation_cases` (IE-001) |
+| `0012` | `implementation_cases.delivery_status` += `activation_ready`, `active` (IE-002) |
+| `0013` | `services.status` += `inactive` (Secure Automation stubs) |
 
 This layer is **complete for the P0 revenue workflow contracts** (outcomes +
 `revenue_sessions` + events). It is not incomplete — remaining gaps are

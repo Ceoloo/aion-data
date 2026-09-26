@@ -20,6 +20,7 @@ import { PostgresEvaluationRepository } from './repositories/postgres-evaluation
 import { PostgresAutonomyGrantRepository } from './repositories/postgres-autonomy-grant-repository.js';
 import { PostgresExternalSideEffectRepository } from './repositories/postgres-external-side-effect-repository.js';
 import { PostgresRevenueSessionRepository } from './repositories/postgres-revenue-session-repository.js';
+import { PostgresImplementationCaseRepository } from './repositories/postgres-implementation-case-repository.js';
 
 /**
  * The set of durable repositories/adapters, bound to a single {@link Queryable}
@@ -49,6 +50,8 @@ export interface DataRepositories {
   externalSideEffects: PostgresExternalSideEffectRepository;
   /** Revenue Copilot — opaque versioned session checkpoints. */
   revenueSessions: PostgresRevenueSessionRepository;
+  /** IE-001 / IE-002 — ImplementationCase delivery records. */
+  implementationCases: PostgresImplementationCaseRepository;
 }
 
 /** Builds the repository set over any query surface (pool or tx client). */
@@ -69,6 +72,7 @@ export function buildRepositories(db: Queryable): DataRepositories {
     autonomyGrants: new PostgresAutonomyGrantRepository(db),
     externalSideEffects: new PostgresExternalSideEffectRepository(db),
     revenueSessions: new PostgresRevenueSessionRepository(db),
+    implementationCases: new PostgresImplementationCaseRepository(db),
   };
 }
 
