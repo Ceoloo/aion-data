@@ -3,6 +3,7 @@ import type { MigrationResult } from './migrations/runner.js';
 import { runMigrations } from './migrations/runner.js';
 import type { DataLayerConfig } from './db/config.js';
 import type { Queryable } from './db/client.js';
+import { TenantScopedPool } from './db/tenant-scope.js';
 import { createPool } from './db/client.js';
 import { withTransaction } from './db/transaction.js';
 import { PostgresMissionRepository } from './repositories/postgres-mission-repository.js';
@@ -108,13 +109,18 @@ export interface DataLayer extends DataRepositories {
  */
 export function createDataLayer(config: DataLayerConfig): DataLayer {
   const pool = createPool(config);
-  const repos = buildRepositories(pool);
+  // Tenant-scoped hosts route every repository query/transaction through a
+  // facade that binds `aion.tenant_id`; migrations always use the raw pool.
+  const scoped = config.tenantContext
+    ? new TenantScopedPool(pool, config.tenantContext)
+    : undefined;
+  const repos = buildRepositories(scoped ?? pool);
 
   return {
     ...repos,
     pool,
     migrate: () => runMigrations(pool),
-    transaction: (fn) => withTransaction(pool, (tx) => fn(buildRepositories(tx))),
+    transaction: (fn) => withTransaction(scoped ?? pool, (tx) => fn(buildRepositories(tx))),
     close: () => pool.end(),
   };
 }

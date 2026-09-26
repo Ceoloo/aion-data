@@ -24,6 +24,14 @@ export interface DataLayerConfig {
   ssl?: boolean | { rejectUnauthorized?: boolean; ca?: string };
   /** Application name reported to Postgres (aids audit/observability). */
   applicationName?: string;
+  /**
+   * Current-tenant supplier (ADR-005). When set, every repository query and
+   * transaction runs on a connection whose `aion.tenant_id` equals the value
+   * it returns, so the tenant RLS policies (migration 0010) apply to the
+   * caller's tenant. Hosts serving tenant traffic as a non-owner role (the
+   * Runtime's `aion_app`) must set it. Migrations are never tenant-scoped.
+   */
+  tenantContext?: () => string | undefined;
 }
 
 /**

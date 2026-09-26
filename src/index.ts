@@ -23,6 +23,12 @@ export {
 export { type DataLayerConfig, configFromEnv } from './db/config.js';
 export { createPool, type Queryable } from './db/client.js';
 export { withTransaction } from './db/transaction.js';
+export {
+  TenantScopedPool,
+  applyTenant,
+  TENANT_SETTING,
+  type TenantContext,
+} from './db/tenant-scope.js';
 
 // ── Durable Core-port adapters ──────────────────────────────────────────────
 export { PostgresMissionRepository } from './repositories/postgres-mission-repository.js';
