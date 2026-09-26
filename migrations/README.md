@@ -66,3 +66,15 @@ avoids destructive rollbacks against durable state.
 npm run migrate            # apply pending migrations (MIGRATION_DATABASE_URL or DATABASE_URL)
 npm run reset-test-db      # drop+recreate the test schema and re-migrate (test DBs only)
 ```
+
+## Divergent-lineage reconciliation
+
+Before the platform-alignment change, aion-runtime deployed aion-data from a
+side branch whose `0009`/`0010` (`implementation_cases`,
+`ie002_activation_statuses`) differed from `main`'s, plus a Runtime overlay
+that recorded `revenue_sessions` as `0011`. The runner's
+`reconcileLegacyMigrationLineage` relabels exactly those `(version, name)` rows
+to their canonical versions (`0011`, `0012`, `0009`) in one transaction before
+checksum verification — no DDL is re-run — then applies only what is genuinely
+missing (`0010` tenant RLS, `0013`). Canonical-lineage databases are untouched.
+Covered by `tests/migrations/legacy-lineage.test.ts`.

@@ -55,6 +55,7 @@ export { PostgresImplementationCaseRepository } from './repositories/postgres-im
 // ── Migrations ──────────────────────────────────────────────────────────────
 export {
   runMigrations,
+  reconcileLegacyMigrationLineage,
   readMigrations,
   defaultMigrationsDir,
   type Migration,
