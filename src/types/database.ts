@@ -37,6 +37,15 @@ export interface ActorRow {
   output_contract: string | null;
   evaluation_criteria: unknown;
   observability_requirements: unknown;
+  action_tier: string | null;
+  delegated_authority: unknown;
+  policy_version: string | null;
+  execution_evidence: string | null;
+  revocation_state: string;
+  environment: string | null;
+  credential_method: string | null;
+  approval_requirements: unknown;
+  last_activity: Date | null;
   metadata: Record<string, unknown>;
   created_at: Date;
   updated_at: Date;
