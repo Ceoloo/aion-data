@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ACTION_TIERS,
   ACTOR_TYPES,
   APPROVAL_STATUSES,
   AUTONOMY_ENVIRONMENTS,
@@ -12,13 +13,15 @@ import {
   MISSION_STATUSES,
   OPERATION_STATUSES,
   OUTCOME_STATUSES,
+  REGISTRY_ENVIRONMENTS,
+  REVOCATION_STATES,
   RISK_LEVELS,
   RUN_STATES,
   SERVICE_STATUSES,
 } from '@aion/core';
 
 /**
- * SQL CHECK members mirrored from migrations 0001–0013.
+ * SQL CHECK members mirrored from migrations 0001–0014.
  *
  * If Core adds/removes an enum member, this test fails until the matching
  * migration (and docs/schema.md) is updated. Do not "fix" by editing only
@@ -73,6 +76,9 @@ const SQL_CHECK = {
     'on_hold',
     'declined',
   ],
+  actionTiers: ['observe', 'assist', 'execute'],
+  revocationStates: ['active', 'suspended', 'revoked'],
+  registryEnvironments: ['development', 'staging', 'production'],
 } as const;
 
 function sorted(values: readonly string[]): string[] {
@@ -140,5 +146,13 @@ describe('Core enum ↔ SQL CHECK drift', () => {
   it('implementation_cases.commercial_status / delivery_status', () => {
     expect(sorted(COMMERCIAL_STATUSES)).toEqual(sorted(SQL_CHECK.commercialStatuses));
     expect(sorted(DELIVERY_STATUSES)).toEqual(sorted(SQL_CHECK.deliveryStatuses));
+  });
+
+  it('actors.action_tier / revocation_state / environment (AIO-44)', () => {
+    expect(sorted(ACTION_TIERS)).toEqual(sorted(SQL_CHECK.actionTiers));
+    expect(sorted(REVOCATION_STATES)).toEqual(sorted(SQL_CHECK.revocationStates));
+    expect(sorted(REGISTRY_ENVIRONMENTS)).toEqual(
+      sorted(SQL_CHECK.registryEnvironments),
+    );
   });
 });

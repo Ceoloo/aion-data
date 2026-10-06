@@ -14,6 +14,8 @@ import { actorToColumns, rowToActor } from '../mappers/actor-mapper.js';
  * (aion-docs/architecture/security-model.md: "No ambient authority"). This
  * repository owns registering those identities. It is intentionally minimal and
  * is NOT forced back into Core.
+ *
+ * AIO-44 extends the row with Agent Identity Registry (SIS-AG-02) columns.
  */
 export class PostgresActorRepository {
   constructor(private readonly db: Queryable) {}
@@ -42,11 +44,14 @@ export class PostgresActorRepository {
            agent_uri, domain, role, tenant_id, company_id, venture_id,
            project_id, autonomy_level, allowed_data,
            input_contract, output_contract, evaluation_criteria,
-           observability_requirements, metadata
+           observability_requirements, action_tier, delegated_authority,
+           policy_version, execution_evidence, revocation_state, environment,
+           credential_method, approval_requirements, last_activity, metadata
          ) VALUES (
            $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, $9, $10, $11,
            $12::jsonb, $13, $14, $15, $16, $17, $18, $19, $20, $21,
-           $22::jsonb, $23, $24, $25::jsonb, $26::jsonb, $27::jsonb
+           $22::jsonb, $23, $24, $25::jsonb, $26::jsonb, $27, $28::jsonb,
+           $29, $30, $31, $32, $33, $34::jsonb, $35, $36::jsonb
          )
          ON CONFLICT (actor_id) DO UPDATE SET
            actor_type = EXCLUDED.actor_type,
@@ -74,6 +79,15 @@ export class PostgresActorRepository {
            output_contract = EXCLUDED.output_contract,
            evaluation_criteria = EXCLUDED.evaluation_criteria,
            observability_requirements = EXCLUDED.observability_requirements,
+           action_tier = EXCLUDED.action_tier,
+           delegated_authority = EXCLUDED.delegated_authority,
+           policy_version = EXCLUDED.policy_version,
+           execution_evidence = EXCLUDED.execution_evidence,
+           revocation_state = EXCLUDED.revocation_state,
+           environment = EXCLUDED.environment,
+           credential_method = EXCLUDED.credential_method,
+           approval_requirements = EXCLUDED.approval_requirements,
+           last_activity = EXCLUDED.last_activity,
            metadata = EXCLUDED.metadata,
            updated_at = now()`,
         [
@@ -83,7 +97,10 @@ export class PostgresActorRepository {
           c.agent_uri, c.domain, c.role, c.tenant_id, c.company_id,
           c.venture_id, c.project_id, c.autonomy_level, c.allowed_data,
           c.input_contract, c.output_contract, c.evaluation_criteria,
-          c.observability_requirements, c.metadata,
+          c.observability_requirements, c.action_tier, c.delegated_authority,
+          c.policy_version, c.execution_evidence, c.revocation_state,
+          c.environment, c.credential_method, c.approval_requirements,
+          c.last_activity, c.metadata,
         ],
       );
     } catch (err) {

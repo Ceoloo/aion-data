@@ -27,7 +27,7 @@ const CORE_REPO = process.env.AION_CORE_REPO ?? 'https://github.com/Ceoloo/aion-
 // Platform-aligned aion-core pin (AION system contract lock). Must match the
 // CORE_REF in aion-runtime/scripts/setup-deps.mjs and the CORE_SHA in
 // aion-products/scripts/setup-core.sh — one contract surface across the system.
-const CORE_REF = process.env.AION_CORE_REF ?? '52ecf40b860ec9e32fe62c3fc8a8252c5ad17157';
+const CORE_REF = process.env.AION_CORE_REF ?? '9e73c2e9d75537c7f92c07205fa8f73c27f08e58';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const vendorDir = resolve(root, 'vendor', 'aion-core');

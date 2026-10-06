@@ -1,4 +1,4 @@
-import { Actor } from '@aion/core';
+import { Actor, DelegatedAuthority } from '@aion/core';
 import type { ActorRow } from '../types/database.js';
 import { MappingError } from '../errors/index.js';
 import { metadataObject, numberOrUndefined, stringArray } from './_shared.js';
@@ -49,6 +49,27 @@ export function rowToActor(row: ActorRow): Actor {
           ...(row.output_contract ? { outputContract: row.output_contract } : {}),
           evaluationCriteria: stringArray(row.evaluation_criteria),
           observabilityRequirements: stringArray(row.observability_requirements),
+          ...(row.action_tier ? { actionTier: row.action_tier } : {}),
+          ...(row.delegated_authority
+            ? {
+                delegatedAuthority: DelegatedAuthority.parse(
+                  row.delegated_authority,
+                ),
+              }
+            : {}),
+          ...(row.policy_version ? { policyVersion: row.policy_version } : {}),
+          ...(row.execution_evidence
+            ? { executionEvidence: row.execution_evidence }
+            : {}),
+          revocationState: row.revocation_state ?? 'active',
+          ...(row.environment ? { environment: row.environment } : {}),
+          ...(row.credential_method
+            ? { credentialMethod: row.credential_method }
+            : {}),
+          approvalRequirements: stringArray(row.approval_requirements),
+          ...(row.last_activity
+            ? { lastActivity: row.last_activity.toISOString() }
+            : {}),
         }
       : base;
 
@@ -90,6 +111,15 @@ export function actorToColumns(actor: Actor): {
   output_contract: string | null;
   evaluation_criteria: string;
   observability_requirements: string;
+  action_tier: string | null;
+  delegated_authority: string | null;
+  policy_version: string | null;
+  execution_evidence: string | null;
+  revocation_state: string;
+  environment: string | null;
+  credential_method: string | null;
+  approval_requirements: string;
+  last_activity: Date | null;
   metadata: string;
 } {
   const isAgent = actor.actorType === 'agent';
@@ -122,6 +152,21 @@ export function actorToColumns(actor: Actor): {
     observability_requirements: isAgent
       ? JSON.stringify(actor.observabilityRequirements)
       : '[]',
+    action_tier: isAgent ? actor.actionTier ?? null : null,
+    delegated_authority:
+      isAgent && actor.delegatedAuthority
+        ? JSON.stringify(actor.delegatedAuthority)
+        : null,
+    policy_version: isAgent ? actor.policyVersion ?? null : null,
+    execution_evidence: isAgent ? actor.executionEvidence ?? null : null,
+    revocation_state: isAgent ? actor.revocationState ?? 'active' : 'active',
+    environment: isAgent ? actor.environment ?? null : null,
+    credential_method: isAgent ? actor.credentialMethod ?? null : null,
+    approval_requirements: isAgent
+      ? JSON.stringify(actor.approvalRequirements ?? [])
+      : '[]',
+    last_activity:
+      isAgent && actor.lastActivity ? new Date(actor.lastActivity) : null,
     metadata: JSON.stringify(actor.metadata),
   };
 }

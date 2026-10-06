@@ -2,9 +2,10 @@
 
 The durable schema is the union of migrations
 [`0001`](../migrations/0001_initial_core_state.sql) through
-[`0009`](../migrations/0009_revenue_sessions.sql). Phase 2 started with the Core
+[`0014`](../migrations/0014_agent_identity_registry.sql). Phase 2 started with the Core
 control-plane tables; later additive migrations added the execution platform,
-catalog, governance evidence, and opaque revenue session checkpoints.
+catalog, governance evidence, opaque revenue session checkpoints, and the
+Agent Identity Registry (AIO-44).
 
 Current inventory (plus internal `schema_migrations`):
 
@@ -23,6 +24,7 @@ Current inventory (plus internal `schema_migrations`):
 | `0011` | `implementation_cases` (IE-001) |
 | `0012` | `implementation_cases.delivery_status` += `activation_ready`, `active` (IE-002) |
 | `0013` | `services.status` += `inactive` (Secure Automation stubs) |
+| `0014` | Agent Identity Registry columns on `actors` (AIO-44 / SIS-AG-02) |
 
 This layer is **complete for the P0 revenue workflow contracts** (outcomes +
 `revenue_sessions` + events). It is not incomplete — remaining gaps are
@@ -105,16 +107,25 @@ governance fields are nullable and required by CHECK when `actor_type='agent'`.
 | `tenant_id` | text? | multi-venture scope. |
 | `company_id`,`venture_id`,`project_id` | text? | optional hierarchy (0004). |
 | `autonomy_level` | text? | CHECK ∈ {L0..L4}. |
-| `allowed_data` | jsonb | data allow-list. |
+| `allowed_data` | jsonb | data allow-list (SIS `data_scope`). |
 | `input_contract`,`output_contract` | text? | I/O contract refs. |
 | `evaluation_criteria` | jsonb | eval ids / criteria. |
 | `observability_requirements` | jsonb | required telemetry/events. |
+| `action_tier` | text? | SIS `permission_tier`; CHECK ∈ {observe, assist, execute} (0014). |
+| `delegated_authority` | jsonb? | SIS `delegated_authority` — Core `DelegatedAuthority` (0014). |
+| `policy_version` | text? | SIS `policy_version` (0014). |
+| `execution_evidence` | text? | SIS `execution_evidence` link/path (0014). |
+| `revocation_state` | text | SIS `revocation_state`; CHECK ∈ {active, suspended, revoked}; default `active` (0014). |
+| `environment` | text? | CHECK ∈ {development, staging, production} (0014). |
+| `credential_method` | text? | how credentials are obtained (0014). |
+| `approval_requirements` | jsonb | declared human-approval requirements (0014). |
+| `last_activity` | timestamptz? | last observed activity (0014). |
 | `metadata` | jsonb | |
 | `created_at`,`updated_at` | timestamptz | DB audit (not in Core contract). |
 
 Constraint `actors_agent_fields_coherent`: agents must carry `agent_id`,
 `purpose`, `owner`, `default_risk_level`; non-agents must not (including the
-identity-registry columns).
+identity-registry and AIO-44 registry columns).
 
 ## `executions` (`aion_execution`)
 
