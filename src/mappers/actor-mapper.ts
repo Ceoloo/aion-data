@@ -44,11 +44,33 @@ export function rowToActor(row: ActorRow): Actor {
           ...(row.venture_id ? { ventureId: row.venture_id } : {}),
           ...(row.project_id ? { projectId: row.project_id } : {}),
           ...(row.autonomy_level ? { autonomyLevel: row.autonomy_level } : {}),
+          ...(row.action_tier ? { actionTier: row.action_tier } : {}),
           allowedData: stringArray(row.allowed_data),
           ...(row.input_contract ? { inputContract: row.input_contract } : {}),
           ...(row.output_contract ? { outputContract: row.output_contract } : {}),
           evaluationCriteria: stringArray(row.evaluation_criteria),
           observabilityRequirements: stringArray(row.observability_requirements),
+          ...(row.delegated_authority_id
+            ? { delegatedAuthorityId: row.delegated_authority_id }
+            : {}),
+          ...(row.delegated_authority_evidence
+            ? { delegatedAuthorityEvidence: row.delegated_authority_evidence }
+            : {}),
+          ...(row.policy_version ? { policyVersion: row.policy_version } : {}),
+          ...(row.execution_evidence
+            ? { executionEvidence: row.execution_evidence }
+            : {}),
+          ...(row.revocation_state
+            ? { revocationState: row.revocation_state }
+            : {}),
+          ...(row.environment ? { environment: row.environment } : {}),
+          ...(row.credential_method
+            ? { credentialMethod: row.credential_method }
+            : {}),
+          approvalRequirements: stringArray(row.approval_requirements),
+          ...(row.last_activity_at
+            ? { lastActivityAt: row.last_activity_at.toISOString() }
+            : {}),
         }
       : base;
 
@@ -85,11 +107,21 @@ export function actorToColumns(actor: Actor): {
   venture_id: string | null;
   project_id: string | null;
   autonomy_level: string | null;
+  action_tier: string | null;
   allowed_data: string;
   input_contract: string | null;
   output_contract: string | null;
   evaluation_criteria: string;
   observability_requirements: string;
+  delegated_authority_id: string | null;
+  delegated_authority_evidence: string | null;
+  policy_version: string | null;
+  execution_evidence: string | null;
+  revocation_state: string | null;
+  environment: string | null;
+  credential_method: string | null;
+  approval_requirements: string;
+  last_activity_at: Date | null;
   metadata: string;
 } {
   const isAgent = actor.actorType === 'agent';
@@ -115,6 +147,7 @@ export function actorToColumns(actor: Actor): {
     venture_id: isAgent ? actor.ventureId ?? null : null,
     project_id: isAgent ? actor.projectId ?? null : null,
     autonomy_level: isAgent ? actor.autonomyLevel ?? null : null,
+    action_tier: isAgent ? actor.actionTier ?? null : null,
     allowed_data: isAgent ? JSON.stringify(actor.allowedData) : '[]',
     input_contract: isAgent ? actor.inputContract ?? null : null,
     output_contract: isAgent ? actor.outputContract ?? null : null,
@@ -122,6 +155,21 @@ export function actorToColumns(actor: Actor): {
     observability_requirements: isAgent
       ? JSON.stringify(actor.observabilityRequirements)
       : '[]',
+    delegated_authority_id: isAgent ? actor.delegatedAuthorityId ?? null : null,
+    delegated_authority_evidence: isAgent
+      ? actor.delegatedAuthorityEvidence ?? null
+      : null,
+    policy_version: isAgent ? actor.policyVersion ?? null : null,
+    execution_evidence: isAgent ? actor.executionEvidence ?? null : null,
+    revocation_state: isAgent ? actor.revocationState ?? null : null,
+    environment: isAgent ? actor.environment ?? null : null,
+    credential_method: isAgent ? actor.credentialMethod ?? null : null,
+    approval_requirements: isAgent
+      ? JSON.stringify(actor.approvalRequirements ?? [])
+      : '[]',
+    last_activity_at: isAgent && actor.lastActivityAt
+      ? new Date(actor.lastActivityAt)
+      : null,
     metadata: JSON.stringify(actor.metadata),
   };
 }

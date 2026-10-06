@@ -45,8 +45,22 @@ export function makeAgent(
     domain?: string;
     role?: string;
     tenantId?: string;
+    registryComplete?: boolean;
   } = {},
 ): AgentActor {
+  const registry =
+    overrides.registryComplete === false
+      ? {}
+      : {
+          actionTier: 'assist' as const,
+          delegatedAuthorityEvidence: 'platform-team test root grant',
+          policyVersion: 'sis-v1.0/test',
+          executionEvidence: 'audit://aion-test/agents/worker',
+          revocationState: 'active' as const,
+          environment: 'development' as const,
+          credentialMethod: 'test-fixture',
+          approvalRequirements: ['R3 human gate'],
+        };
   return createAgentActor({
     name: 'WorkerAgent',
     purpose: 'Perform governed work for tests.',
@@ -63,6 +77,7 @@ export function makeAgent(
     evaluationCriteria: ['test.roundtrip'],
     observabilityRequirements: ['telemetry.cost'],
     costBudget: 100,
+    ...registry,
   });
 }
 

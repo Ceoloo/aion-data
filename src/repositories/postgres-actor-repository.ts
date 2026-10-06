@@ -40,13 +40,18 @@ export class PostgresActorRepository {
            forbidden_capabilities, max_risk_level, agent_id, purpose, owner,
            default_risk_level, escalation_conditions, cost_budget,
            agent_uri, domain, role, tenant_id, company_id, venture_id,
-           project_id, autonomy_level, allowed_data,
+           project_id, autonomy_level, action_tier, allowed_data,
            input_contract, output_contract, evaluation_criteria,
-           observability_requirements, metadata
+           observability_requirements,
+           delegated_authority_id, delegated_authority_evidence,
+           policy_version, execution_evidence, revocation_state,
+           environment, credential_method, approval_requirements,
+           last_activity_at, metadata
          ) VALUES (
            $1, $2, $3, $4::jsonb, $5::jsonb, $6::jsonb, $7, $8, $9, $10, $11,
-           $12::jsonb, $13, $14, $15, $16, $17, $18, $19, $20, $21,
-           $22::jsonb, $23, $24, $25::jsonb, $26::jsonb, $27::jsonb
+           $12::jsonb, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22,
+           $23::jsonb, $24, $25, $26::jsonb, $27::jsonb,
+           $28, $29, $30, $31, $32, $33, $34, $35::jsonb, $36, $37::jsonb
          )
          ON CONFLICT (actor_id) DO UPDATE SET
            actor_type = EXCLUDED.actor_type,
@@ -69,11 +74,21 @@ export class PostgresActorRepository {
            venture_id = EXCLUDED.venture_id,
            project_id = EXCLUDED.project_id,
            autonomy_level = EXCLUDED.autonomy_level,
+           action_tier = EXCLUDED.action_tier,
            allowed_data = EXCLUDED.allowed_data,
            input_contract = EXCLUDED.input_contract,
            output_contract = EXCLUDED.output_contract,
            evaluation_criteria = EXCLUDED.evaluation_criteria,
            observability_requirements = EXCLUDED.observability_requirements,
+           delegated_authority_id = EXCLUDED.delegated_authority_id,
+           delegated_authority_evidence = EXCLUDED.delegated_authority_evidence,
+           policy_version = EXCLUDED.policy_version,
+           execution_evidence = EXCLUDED.execution_evidence,
+           revocation_state = EXCLUDED.revocation_state,
+           environment = EXCLUDED.environment,
+           credential_method = EXCLUDED.credential_method,
+           approval_requirements = EXCLUDED.approval_requirements,
+           last_activity_at = EXCLUDED.last_activity_at,
            metadata = EXCLUDED.metadata,
            updated_at = now()`,
         [
@@ -81,9 +96,13 @@ export class PostgresActorRepository {
           c.forbidden_capabilities, c.max_risk_level, c.agent_id, c.purpose,
           c.owner, c.default_risk_level, c.escalation_conditions, c.cost_budget,
           c.agent_uri, c.domain, c.role, c.tenant_id, c.company_id,
-          c.venture_id, c.project_id, c.autonomy_level, c.allowed_data,
-          c.input_contract, c.output_contract, c.evaluation_criteria,
-          c.observability_requirements, c.metadata,
+          c.venture_id, c.project_id, c.autonomy_level, c.action_tier,
+          c.allowed_data, c.input_contract, c.output_contract,
+          c.evaluation_criteria, c.observability_requirements,
+          c.delegated_authority_id, c.delegated_authority_evidence,
+          c.policy_version, c.execution_evidence, c.revocation_state,
+          c.environment, c.credential_method, c.approval_requirements,
+          c.last_activity_at, c.metadata,
         ],
       );
     } catch (err) {

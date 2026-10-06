@@ -12,6 +12,7 @@ Current inventory (plus internal `schema_migrations`):
 |---|---|
 | `0001` | `actors`, `missions`, `runs`, `approvals`, `events`, `telemetry_records`, `outcomes` |
 | `0002` | `executions`; agent identity columns on `actors` |
+| `0014` | Agent Identity Registry columns on `actors` (AIO-44 / SIS-AG-02) |
 | `0003` | `services` |
 | `0004` | tenant / hierarchy / approval-binding columns |
 | `0005` | `workflows` |
@@ -105,16 +106,26 @@ governance fields are nullable and required by CHECK when `actor_type='agent'`.
 | `tenant_id` | text? | multi-venture scope. |
 | `company_id`,`venture_id`,`project_id` | text? | optional hierarchy (0004). |
 | `autonomy_level` | text? | CHECK ∈ {L0..L4}. |
+| `action_tier` | text? | CHECK ∈ {observe, assist, execute} (AIO-44). |
 | `allowed_data` | jsonb | data allow-list. |
 | `input_contract`,`output_contract` | text? | I/O contract refs. |
 | `evaluation_criteria` | jsonb | eval ids / criteria. |
 | `observability_requirements` | jsonb | required telemetry/events. |
+| `delegated_authority_id` | text? | Core `AuthorityId` when bound. |
+| `delegated_authority_evidence` | text? | Traceable delegation evidence (SIS-AG-02). |
+| `policy_version` | text? | Policy bundle / version. |
+| `execution_evidence` | text? | Pointer to attributable audit/evidence. |
+| `revocation_state` | text? | CHECK ∈ {active, suspended, revoked}. |
+| `environment` | text? | CHECK ∈ {development, staging, production}. |
+| `credential_method` | text? | How the agent authenticates. |
+| `approval_requirements` | jsonb | Declared human-approval requirements. |
+| `last_activity_at` | timestamptz? | Last observed activity. |
 | `metadata` | jsonb | |
 | `created_at`,`updated_at` | timestamptz | DB audit (not in Core contract). |
 
 Constraint `actors_agent_fields_coherent`: agents must carry `agent_id`,
 `purpose`, `owner`, `default_risk_level`; non-agents must not (including the
-identity-registry columns).
+identity-registry columns and AIO-44 registry fields).
 
 ## `executions` (`aion_execution`)
 

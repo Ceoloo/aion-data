@@ -46,9 +46,27 @@ describe('PostgresActorRepository', () => {
     expect(got.role).toBe('worker');
     expect(got.tenantId).toBe('aion-test');
     expect(got.autonomyLevel).toBe('L1');
+    expect(got.actionTier).toBe('assist');
     expect(got.allowedData).toEqual(['test.fixture']);
     expect(got.evaluationCriteria).toEqual(['test.roundtrip']);
     expect(got.observabilityRequirements).toEqual(['telemetry.cost']);
+    expect(got.delegatedAuthorityEvidence).toBe('platform-team test root grant');
+    expect(got.policyVersion).toBe('sis-v1.0/test');
+    expect(got.executionEvidence).toBe('audit://aion-test/agents/worker');
+    expect(got.revocationState).toBe('active');
+    expect(got.environment).toBe('development');
+    expect(got.credentialMethod).toBe('test-fixture');
+    expect(got.approvalRequirements).toEqual(['R3 human gate']);
+  });
+
+  it('round-trips incomplete registry agents (migration-compatible)', async () => {
+    const agent = makeAgent({ registryComplete: false });
+    await dl.actors.save(agent);
+    const got = await dl.actors.get(agent.actorId);
+    expect(got).toEqual(agent);
+    if (!got || got.actorType !== 'agent') throw new Error('expected agent');
+    expect(got.revocationState).toBeUndefined();
+    expect(got.policyVersion).toBeUndefined();
   });
 
   it('upserts and lists actors', async () => {

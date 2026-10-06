@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   ACTOR_TYPES,
+  ACTION_TIERS,
+  AGENT_REGISTRY_ENVIRONMENTS,
+  AGENT_REVOCATION_STATES,
   APPROVAL_STATUSES,
   AUTONOMY_ENVIRONMENTS,
   AUTONOMY_GRANT_STATUSES,
@@ -18,7 +21,7 @@ import {
 } from '@aion/core';
 
 /**
- * SQL CHECK members mirrored from migrations 0001–0013.
+ * SQL CHECK members mirrored from migrations 0001–0014.
  *
  * If Core adds/removes an enum member, this test fails until the matching
  * migration (and docs/schema.md) is updated. Do not "fix" by editing only
@@ -54,6 +57,9 @@ const SQL_CHECK = {
     'cancelled',
   ],
   autonomyLevels: ['L0', 'L1', 'L2', 'L3', 'L4'],
+  actionTiers: ['observe', 'assist', 'execute'],
+  agentRevocationStates: ['active', 'suspended', 'revoked'],
+  agentRegistryEnvironments: ['development', 'staging', 'production'],
   serviceStatuses: ['active', 'inactive', 'deprecated'],
   autonomyEnvironments: ['staging', 'production'],
   autonomyGrantStatuses: ['active', 'revoked', 'expired', 'superseded'],
@@ -116,6 +122,16 @@ describe('Core enum ↔ SQL CHECK drift', () => {
 
   it('executions.autonomy_level', () => {
     expect(sorted(AUTONOMY_LEVELS)).toEqual(sorted(SQL_CHECK.autonomyLevels));
+  });
+
+  it('actors.action_tier / revocation_state / environment (AIO-44)', () => {
+    expect(sorted(ACTION_TIERS)).toEqual(sorted(SQL_CHECK.actionTiers));
+    expect(sorted(AGENT_REVOCATION_STATES)).toEqual(
+      sorted(SQL_CHECK.agentRevocationStates),
+    );
+    expect(sorted(AGENT_REGISTRY_ENVIRONMENTS)).toEqual(
+      sorted(SQL_CHECK.agentRegistryEnvironments),
+    );
   });
 
   it('services.status', () => {
