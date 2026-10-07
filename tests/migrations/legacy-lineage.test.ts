@@ -58,8 +58,8 @@ describe('legacy execution-object lineage reconciliation', () => {
 
     const results = await dl.migrate();
     const applied = results.filter((r) => r.status === 'applied').map((r) => r.version);
-    // Only genuinely-missing canonical migrations run.
-    expect(applied).toEqual(['0010', '0013']);
+    // Only genuinely-missing canonical migrations run (0014 = Agent Identity Registry).
+    expect(applied).toEqual(['0010', '0013', '0014']);
 
     const { rows } = await dl.pool.query<{ version: string; name: string; checksum: string }>(
       'SELECT version, name, checksum FROM schema_migrations ORDER BY version',

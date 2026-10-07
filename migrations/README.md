@@ -76,5 +76,6 @@ that recorded `revenue_sessions` as `0011`. The runner's
 `reconcileLegacyMigrationLineage` relabels exactly those `(version, name)` rows
 to their canonical versions (`0011`, `0012`, `0009`) in one transaction before
 checksum verification — no DDL is re-run — then applies only what is genuinely
-missing (`0010` tenant RLS, `0013`). Canonical-lineage databases are untouched.
+missing (`0010` tenant RLS, `0013`, and later additive migrations such as
+`0014`). Canonical-lineage databases are untouched.
 Covered by `tests/migrations/legacy-lineage.test.ts`.
