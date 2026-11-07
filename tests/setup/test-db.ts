@@ -46,6 +46,7 @@ export const ALL_TABLES = [
 export async function resetSchema(dl: DataLayer): Promise<void> {
   await dl.pool.query('DROP SCHEMA IF EXISTS public CASCADE');
   await dl.pool.query('CREATE SCHEMA public');
+  await dl.pool.query('DROP SCHEMA IF EXISTS aion_auth CASCADE');
 }
 
 /** Ensures the schema is migrated (idempotent). */
@@ -58,4 +59,5 @@ export async function truncateAll(dl: DataLayer): Promise<void> {
   await dl.pool.query(
     `TRUNCATE ${ALL_TABLES.join(', ')} RESTART IDENTITY CASCADE`,
   );
+  await dl.pool.query('TRUNCATE aion_auth.principal_bindings');
 }
