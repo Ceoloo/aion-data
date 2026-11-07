@@ -54,8 +54,17 @@ describe('Forge append-only audit (real PostgreSQL)',()=>{
     tenant='tenant-a';
     await app.forgeAudit.append(record);
     tenant='tenant-b';
-    const {rows}=await app.pool.query('SELECT event_id FROM forge_audit_events WHERE event_id=$1',[record.eventId]);
-    expect(rows).toHaveLength(0);
+    // Bind tenant explicitly on the non-owner PG connection (raw pool is NOT
+    // TenantScopedPool); this tests RLS with the correct security context.
+    const client=await app.pool.connect();
+    try {
+      await client.query('SELECT set_config($1,$2,false)', ['aion.tenant_id','tenant-b']);
+      const denied=await client.query('SELECT event_id FROM forge_audit_events WHERE event_id=$1',[record.eventId]);
+      expect(denied.rows).toHaveLength(0);
+      await client.query('SELECT set_config($1,$2,false)', ['aion.tenant_id','tenant-a']);
+      const visible=await client.query('SELECT event_id FROM forge_audit_events WHERE event_id=$1',[record.eventId]);
+      expect(visible.rows).toHaveLength(1);
+    } finally {client.release();}
   });
   it('detects same ID conflicting payload and forbids updates/deletes',async()=>{
     tenant='tenant-a';
