@@ -120,3 +120,10 @@ PostgreSQL core stays portable.
 - Integrity in the DB; authorization in Core.
 - RLS deferred deliberately, with the ownership columns already in place for a
   future, tested, ADR-backed introduction.
+
+## Sentinel Identity v0.2 (proposed)
+
+The `aion_auth` schema is a **pre-authentication trust root**. It must not
+inherit broad public-schema DML grants. Only trusted Runtime app-role SELECT
+is allowed; the separate migrator/provisioner controls writes. See
+[Sentinel migration 0015 notes](sentinel-identity-bindings.md).

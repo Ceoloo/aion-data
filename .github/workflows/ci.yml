@@ -60,8 +60,28 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Provision ephemeral read-only app role for identity ACL proof
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d aion_data_test -v ON_ERROR_STOP=1 -c "CREATE ROLE aion_app NOLOGIN;"
+
       - name: Apply migrations
         run: npm run migrate
+
+      - name: Verify Sentinel pre-auth registry cannot be modified by app role
+        env:
+          PGPASSWORD: postgres
+        run: |
+          ACL=$(psql -h localhost -U postgres -d aion_data_test -At -F '|' -c "
+            SELECT
+              has_schema_privilege('aion_app', 'aion_auth', 'USAGE'),
+              has_table_privilege('aion_app', 'aion_auth.principal_bindings', 'SELECT'),
+              has_table_privilege('aion_app', 'aion_auth.principal_bindings', 'INSERT'),
+              has_table_privilege('aion_app', 'aion_auth.principal_bindings', 'UPDATE'),
+              has_table_privilege('aion_app', 'aion_auth.principal_bindings', 'DELETE');")
+          echo "identity-ACL: $ACL"
+          test "$ACL" = "t|t|f|f|f"
 
       - name: Test (integration against Postgres)
         run: npm test
