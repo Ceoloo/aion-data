@@ -89,6 +89,15 @@ Mission → Run → Command/Request → Approval → Events → Telemetry → Ou
                 ↘ Execution (optional tenant scope)
 ```
 
+## Sentinel identity-binding trust root (migration 0015, DRAFT)
+
+Sentinel Keycloak subjects are mapped by AION Data's `aion_auth.principal_bindings`
+table to existing durable Actors. The Runtime application role has read-only
+access to this schema, with no onboarding or permission-granting API. Initial
+bindings are disabled until an authorized administrator activates them.
+See [migration and security review](docs/sentinel-identity-bindings.md).
+No production migration has been run by this PR.
+
 ## Local development
 
 Prerequisites: Node.js ≥ 20 and a PostgreSQL 16 instance (Docker is the easy path).
