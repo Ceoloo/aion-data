@@ -14,6 +14,7 @@ import { PostgresEventSink } from './repositories/postgres-event-sink.js';
 import { PostgresTelemetrySink } from './repositories/postgres-telemetry-sink.js';
 import { PostgresActorRepository } from './repositories/postgres-actor-repository.js';
 import { PostgresIdentityBindingRepository } from './repositories/postgres-identity-binding-repository.js';
+import { PostgresForgeAuditRepository } from './repositories/postgres-forge-audit-repository.js';
 import { PostgresExecutionRepository } from './repositories/postgres-execution-repository.js';
 import { PostgresServiceRepository } from './repositories/postgres-service-repository.js';
 import { PostgresOutcomeRepository } from './outcomes/outcome-repository.js';
@@ -41,6 +42,8 @@ export interface DataRepositories {
   actors: PostgresActorRepository;
   /** Sentinel v0.2: pre-auth, read-only Keycloak identity -> Runtime Principal lookup. */
   identityBindings: PostgresIdentityBindingRepository;
+  /** Runtime-owned Forge v0.2 append-only security evidence. */
+  forgeAudit: PostgresForgeAuditRepository;
   executions: PostgresExecutionRepository;
   services: PostgresServiceRepository;
   outcomes: PostgresOutcomeRepository;
@@ -69,6 +72,7 @@ export function buildRepositories(db: Queryable): DataRepositories {
     telemetry: new PostgresTelemetrySink(db),
     actors: new PostgresActorRepository(db),
     identityBindings: new PostgresIdentityBindingRepository(db),
+    forgeAudit: new PostgresForgeAuditRepository(db),
     executions: new PostgresExecutionRepository(db),
     services: new PostgresServiceRepository(db),
     outcomes: new PostgresOutcomeRepository(db),
